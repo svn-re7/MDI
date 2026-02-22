@@ -1,0 +1,8 @@
+.vs/
+*.vsix
+[Bb]in/
+[Oo]bj/
+*.user
+*.suo
+*.exe
+*.dll
