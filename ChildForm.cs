@@ -13,10 +13,9 @@ namespace MDI
     public partial class ChildForm : Form
     {
         bool isDrawing = false;
-        Point lastPoint;
-        Point lastMovePoint;
+        Point lastPoint; // точка начала рисования фигуры
+        Point lastMovePoint; // точка для рисования предварительной фигуры
         public string? CurrentFilePath = null; // путь до файла
-        Bitmap? snapshot; // снимок экрана до начала рисования линии
         public bool isModified = false; // был ли изменен рисунок
         Pen? myPen;
         public ChildForm()
@@ -24,6 +23,7 @@ namespace MDI
             InitializeComponent();
             DoubleBuffered = true;
             BackColor = Color.Gray;
+            UpdateCursor();
 
             // создаем холст
             Bitmap bmp = new Bitmap(800, 600);
@@ -42,116 +42,117 @@ namespace MDI
         {
             isDrawing = true;
             isModified = true;
-            lastPoint = e.Location; // где начали рисовать
+            lastPoint = e.Location; // где начали рисовать | предыдущая точка
             lastMovePoint = e.Location;
 
             myPen = new Pen(MainForm.CurrentColor, MainForm.CurrentWidth);
             myPen.StartCap = System.Drawing.Drawing2D.LineCap.Round; // скруглять начало
             myPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;   // скруглять конец
             myPen.LineJoin = System.Drawing.Drawing2D.LineJoin.Round; // скруглять стыки
-
-            if (MainForm.CurrentTool == MainForm.DrawingTool.Line ||
-                MainForm.CurrentTool == MainForm.DrawingTool.Ellipse)
-            {
-                snapshot?.Dispose(); // если почему то не удалился, то удалем предыдущий снимок
-                snapshot = new Bitmap(pictureBox.Image); // делаем копию изображения, чтобы рисовать промежуточный размер
-            }
         }
 
         private void PictureBox_MouseMove(object sender, MouseEventArgs e) // двигаем мышкой
         {
+
+            lastMovePoint = new Point(e.X, e.Y); // обновляем текущую точку для предпросмотра
+
             if (isDrawing && myPen != null)
             {
+                isModified = true; // пометка что рисунок изменен
 
-                isModified = true;
-
-                if (pictureBox.Image == null) pictureBox.Image = new Bitmap(pictureBox.Width, pictureBox.Height); // проверка есть ли холст
-
-
-                if (MainForm.CurrentTool == MainForm.DrawingTool.Pen) // если инструмент - кисть
+                // рисуем сразу на Bitmap
+                if (MainForm.CurrentTool == MainForm.DrawingTool.Pen ||
+                    MainForm.CurrentTool == MainForm.DrawingTool.Eraser)
                 {
-                    using (Graphics g = Graphics.FromImage(pictureBox.Image)) // using для быстрой очистки мусора
+                    if (pictureBox.Image == null) return; // проверка на всякий случай
+
+                    using (Graphics g = Graphics.FromImage(pictureBox.Image)) // рисуем прямо на холсте
                     {
-                        g.DrawLine(myPen, lastPoint, e.Location); // рисуем линию от lastPoint до текущего положения e.Location
+                        if (MainForm.CurrentTool == MainForm.DrawingTool.Eraser)
+                            myPen.Color = Color.White; // если ластик - временно белым
+
+                        g.DrawLine(myPen, lastPoint, lastMovePoint); // проводим линию от предыдущей точки до текущей
+
+                        if (MainForm.CurrentTool == MainForm.DrawingTool.Eraser)
+                            myPen.Color = MainForm.CurrentColor; // возвращаем основной цвет
                     }
-                    lastPoint = e.Location; // обновляем последную точку курсора
-
-                }
-                else if (MainForm.CurrentTool == MainForm.DrawingTool.Line) // если инструмент - линия
-                {
-                    if (snapshot != null)
-                    {
-                        using (Graphics g = Graphics.FromImage(pictureBox.Image))
-                        {
-                            g.DrawImage(snapshot, 0, 0); // рисуем на холсте чистый снимок без линии
-
-                            g.DrawLine(myPen, lastPoint, e.Location); // рисуем линию поверх чистого снимка
-                        }
-                    }
-                }
-                else if (MainForm.CurrentTool == MainForm.DrawingTool.Ellipse) // если инструмент - эллипс
-                {
-                    if (snapshot != null)
-                    {
-                        using (Graphics g = Graphics.FromImage(pictureBox.Image))
-                        {
-                            g.DrawImage(snapshot, 0, 0); // рисуем на холсте чистый снимок без эллипса
-
-                            // вычисляем размеры прямоугольника, в который вписан эллипс
-                            int x = Math.Min(lastPoint.X, e.X); // самая левая точка
-                            int y = Math.Min(lastPoint.Y, e.Y); // самая верхняя точка
-                            int width = Math.Abs(e.X - lastPoint.X);
-                            int height = Math.Abs(e.Y - lastPoint.Y);
-
-                            if (MainForm.IsFilled) // если заливка включена
-                            {
-                                using (SolidBrush myBrush = new SolidBrush(MainForm.CurrentColor)) // используем SolidBrush для закрашивания
-                                {
-                                    g.FillEllipse(myBrush, x, y, width, height);
-                                }
-                            }
-                            else
-                            {
-                                g.DrawEllipse(myPen, x, y, width, height);
-                            }
-                        }
-                    }
-                }
-                else if (MainForm.CurrentTool == MainForm.DrawingTool.Eraser) // если инструмент - ластик
-                {
-                    using (Graphics g = Graphics.FromImage(pictureBox.Image)) // using для быстрой очистки мусора
-                    {
-                        myPen.Color = Color.White;
-                        g.DrawLine(myPen, lastPoint, e.Location); // рисуем линию от lastPoint до текущего положения e.Location
-                        myPen.Color = MainForm.CurrentColor;
-                    }
-                    lastPoint = e.Location; // обновляем последную точку курсора
-
+                    lastPoint = lastMovePoint; // фиксируем новую точку как прошлую
                 }
 
-                pictureBox.Invalidate(); // перерисовываем
+                // вызываем перерисовку (для кисти обновит холст, для линий и эллипсов - вызовет событие Paint)
+                pictureBox.Invalidate();
             }
 
-            if (!isDrawing || Math.Abs(e.X - lastMovePoint.X) > 30 || Math.Abs(e.Y - lastMovePoint.Y) > 30)
+            // выводим координаты в главного окна
+            if (MdiParent is MainForm main)
             {
-                if (MdiParent is MainForm main)
+                main.lblMousePos.Text = $"Координаты: {e.X}, {e.Y}";
+            }
+        }
+        private void pictureBox_Paint(object sender, PaintEventArgs e)
+        {
+            if (isDrawing && myPen != null)
+            {
+                // рисуем поверх временную фигуру
+                if (MainForm.CurrentTool == MainForm.DrawingTool.Line)
                 {
-                    main.lblMousePos.Text = $"Координаты: {e.X}, {e.Y}";
-                    lastMovePoint = e.Location;
+                    e.Graphics.DrawLine(myPen, lastPoint, lastMovePoint);
+                }
+                else if (MainForm.CurrentTool == MainForm.DrawingTool.Ellipse)
+                {
+                    // вычисляем размеры прямоугольника, в который вписан эллипс
+                    int x = Math.Min(lastPoint.X, lastMovePoint.X);
+                    int y = Math.Min(lastPoint.Y, lastMovePoint.Y);
+                    int width = Math.Abs(lastMovePoint.X - lastPoint.X);
+                    int height = Math.Abs(lastMovePoint.Y - lastPoint.Y);
+
+                    if (MainForm.IsFilled) // если включена заливка
+                        using (SolidBrush br = new SolidBrush(MainForm.CurrentColor))
+                            e.Graphics.FillEllipse(br, x, y, width, height);
+                    else
+                        e.Graphics.DrawEllipse(myPen, x, y, width, height); // без заливки
                 }
             }
         }
 
+
         private void PictureBox_MouseUp(object sender, MouseEventArgs e) // опустили мышку
         {
-            isDrawing = false;
+            if (isDrawing)
+            {
+                // финализируем рисунок на Bitmap
+                using (Graphics g = Graphics.FromImage(pictureBox.Image))
+                {
+                    if (MainForm.CurrentTool == MainForm.DrawingTool.Line) // если инструмент - линия
+                    {
+                        g.DrawLine(myPen, lastPoint, e.Location); // рисуем фниальную линию
+                    }
+                    else if (MainForm.CurrentTool == MainForm.DrawingTool.Ellipse) // если инструмент - эллипс
+                    {
+                        // вычисляем размеры прямоугольника, в который вписан эллипс
+                        int x = Math.Min(lastPoint.X, e.X); // самая левая точка
+                        int y = Math.Min(lastPoint.Y, e.Y); // самая верхняя точка
+                        int width = Math.Abs(e.X - lastPoint.X);
+                        int height = Math.Abs(e.Y - lastPoint.Y);
+
+                        if (MainForm.IsFilled) // если заливка включена
+                        {
+                            using (SolidBrush myBrush = new SolidBrush(MainForm.CurrentColor)) // используем SolidBrush для закрашивания
+                            {
+                                g.FillEllipse(myBrush, x, y, width, height);
+                            }
+                        }
+                        else
+                        {
+                            g.DrawEllipse(myPen, x, y, width, height);
+                        }
+                    }
+                }
+                isDrawing = false;
+                pictureBox.Invalidate();
+            }
             myPen?.Dispose();
 
-            if (snapshot != null)
-            {
-                snapshot.Dispose(); // удаляем копию из памяти
-                snapshot = null;
-            }
         }
 
         private void ChildForm_Enter(object sender, EventArgs e) // когда окно активное - обновляем курсор

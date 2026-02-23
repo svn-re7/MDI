@@ -199,12 +199,18 @@ namespace MDI
                     {
                         Bitmap bmp = new Bitmap(tempImg); // создаем Bitmap холста
                         newChild.pictureBox.Image = bmp; // присваиваем Bitmap окну
+                        newChild.pictureBox.Size = bmp.Size; // подгоняем размер контрола
+                        newChild.ClientSize = new Size(newChild.pictureBox.Width, newChild.pictureBox.Height); // подгоняем окно под новый размер
+
                     }
 
                     newChild.Text = Path.GetFileName(ofd.FileName); // заголовок окна - название файла
                     newChild.CurrentFilePath = ofd.FileName; // запоминаем путь к загруженному файлу
                     newChild.UpdateCursor(); // обновляем курсор
+
                     newChild.Show();
+
+
                 }
                 catch (Exception ex) // если ошибка при открытии
                 {

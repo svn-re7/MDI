@@ -41,6 +41,7 @@
             pictureBox.Size = new Size(800, 450);
             pictureBox.TabIndex = 0;
             pictureBox.TabStop = false;
+            pictureBox.Paint += pictureBox_Paint;
             pictureBox.MouseDown += PictureBox_MouseDown;
             pictureBox.MouseMove += PictureBox_MouseMove;
             pictureBox.MouseUp += PictureBox_MouseUp;
