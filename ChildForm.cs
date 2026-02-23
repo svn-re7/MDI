@@ -51,7 +51,23 @@ namespace MDI
                 ChangeScale(0.8f); // уменьшаем на 20
                 return;
             }
-            
+
+            // инструмент - ведро
+            if (MainForm.CurrentTool == MainForm.DrawingTool.Bucket)
+            {
+                Point point = MapCoordinates(e.Location);
+
+                // проверка на границы
+                if (point.X >= 0 && point.X < pictureBox.Image.Width &&
+                    point.Y >= 0 && point.Y < pictureBox.Image.Height)
+                {
+                    FloodFill((Bitmap)pictureBox.Image, point, MainForm.CurrentColor);
+                    isModified = true;
+                    pictureBox.Invalidate();
+                }
+                return;
+            }
+
             // инструмент - текст
             if (MainForm.CurrentTool == MainForm.DrawingTool.Text)
             {
@@ -64,7 +80,7 @@ namespace MDI
 
                         if (MdiParent is MainForm parent)
                         {
-                            if (MainForm.currentFont == null)
+                            if (MainForm.currentFont == null) // если шрифт не установлен
                             {
                                 parent.BtnFont_Click(sender, e);
                             }
@@ -300,6 +316,36 @@ namespace MDI
                 (int)(Point.X * ratioX),
                 (int)(Point.Y * ratioY)
             );
+        }
+
+        private void FloodFill(Bitmap bmp, Point pt, Color targetColor) // метод для заливки на основе очереди
+        {
+            Color originColor = bmp.GetPixel(pt.X, pt.Y); // цвет, куда нажали
+
+            // если мы кликнули цветом по такому же цвету — ничего делать не надо
+            if (originColor.ToArgb() == targetColor.ToArgb()) return;
+
+            Queue<Point> pixels = new Queue<Point>();
+            pixels.Enqueue(pt);
+
+            while (pixels.Count > 0)
+            {
+                Point a = pixels.Dequeue(); // нынешняя точка
+
+                if (a.X < 0 || a.X >= bmp.Width || a.Y < 0 || a.Y >= bmp.Height) // если вышли за пределы холста - пропускаем
+                    continue;
+
+                if (bmp.GetPixel(a.X, a.Y).ToArgb() == originColor.ToArgb()) // если пиксель начального цвета, который нужно красить
+                {
+                    bmp.SetPixel(a.X, a.Y, targetColor); // перекрашиваем пиксель в цвет заливки
+
+                    // добавляем соседей в очередь
+                    pixels.Enqueue(new Point(a.X - 1, a.Y));
+                    pixels.Enqueue(new Point(a.X + 1, a.Y));
+                    pixels.Enqueue(new Point(a.X, a.Y - 1));
+                    pixels.Enqueue(new Point(a.X, a.Y + 1));
+                }
+            }
         }
     }
 }

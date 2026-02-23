@@ -335,7 +335,7 @@ namespace MDI
             }
         }
 
-        public void BtnFont_Click(object sender, EventArgs e)
+        public void BtnFont_Click(object sender, EventArgs e) // טחלוםטעü רנטפע
         {
             using (FontDialog fd = new FontDialog()) // גûחûגאול גûבמנ רנטפעא
             {
