@@ -51,6 +51,43 @@ namespace MDI
                 ChangeScale(0.8f); // уменьшаем на 20
                 return;
             }
+            
+            // инструмент - текст
+            if (MainForm.CurrentTool == MainForm.DrawingTool.Text)
+            {
+                using (TextForm tf = new TextForm()) // создаем форму для ввода текста
+                {
+                    if (tf.ShowDialog() == DialogResult.OK)
+                    {
+                        string textToDraw = tf.UserText; // получили текст из диалога
+                        if (string.IsNullOrEmpty(textToDraw)) return;
+
+                        if (MdiParent is MainForm parent)
+                        {
+                            if (MainForm.currentFont == null)
+                            {
+                                parent.BtnFont_Click(sender, e);
+                            }
+                            Point point = MapCoordinates(e.Location); // пересчитываем координаты в реальные
+
+                            using (Graphics g = Graphics.FromImage(pictureBox.Image))
+                            {
+                                // сглаживание 
+                                g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
+
+                                using (SolidBrush brush = new SolidBrush(MainForm.CurrentColor))
+                                {
+                                    if (MainForm.currentFont != null)
+                                        g.DrawString(textToDraw, MainForm.currentFont, brush, point);
+                                }
+                            }
+                        }
+                        isModified = true;
+                        pictureBox.Invalidate(); // перерисовываем
+                    }
+                }
+                return; // чтобы не сработал код обычного рисования
+            }
 
             // изменение флагов и т д
             isDrawing = true;
@@ -206,6 +243,12 @@ namespace MDI
                     break;
                 case MainForm.DrawingTool.Eraser:
                     pictureBox.Cursor = GetSafeCursor(@"Resources\Eraser.cur", Cursors.NoMove2D);
+                    break;
+                case MainForm.DrawingTool.Text:
+                    pictureBox.Cursor = Cursors.IBeam;
+                    break;
+                default:
+                    pictureBox.Cursor = Cursors.Default;
                     break;
             }
         }

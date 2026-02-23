@@ -8,7 +8,8 @@ namespace MDI
         public static Color CurrentColor = Color.Black; // цвет пера
         public static int CurrentWidth = 3; // толщина пера
         public static bool IsFilled = false; // по умолчанию рисуем без заливки
-        public enum DrawingTool { Pen, Line, Ellipse, Eraser, ZoomIn, ZoomOut } // список констант - инструменты
+        public static Font? currentFont;
+        public enum DrawingTool { Pen, Line, Ellipse, Eraser, ZoomIn, ZoomOut, Text, Bucket, Star } // список констант - инструменты
 
         public static DrawingTool CurrentTool = DrawingTool.Pen; // текущий инструмент - перо
 
@@ -52,7 +53,7 @@ namespace MDI
             ChildForm newChild = new ChildForm(); // создаем экземпляр дочернего окна
             newChild.MdiParent = this; // должен открываться внутри MainForm
             newChild.Text = "Рисунок " + this.MdiChildren.Length.ToString(); // меняем заголовок
-            
+
             newChild.Show();
         }
 
@@ -237,6 +238,9 @@ namespace MDI
 
         private void ToolMenuItem_Click(object sender, EventArgs e) // панель выбора инструментов
         {
+            btnFont.Visible = false;
+            btnIsFilled.Visible = false;
+
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender; // приводим sender к типу пункта меню
 
 
@@ -252,6 +256,7 @@ namespace MDI
                     break;
                 case "Эллипс":
                     CurrentTool = DrawingTool.Ellipse;
+                    btnIsFilled.Visible = true;
                     break;
                 case "Ластик":
                     CurrentTool = DrawingTool.Eraser;
@@ -261,6 +266,16 @@ namespace MDI
                     break;
                 case "Масштаб-":
                     CurrentTool = DrawingTool.ZoomOut;
+                    break;
+                case "Текст":
+                    CurrentTool = DrawingTool.Text;
+                    btnFont.Visible = true;
+                    break;
+                case "Ведро с краской":
+                    CurrentTool = DrawingTool.Bucket;
+                    break;
+                case "Звезда":
+                    CurrentTool = DrawingTool.Star;
                     break;
             }
 
@@ -316,6 +331,17 @@ namespace MDI
                     child.Refresh();   // принудительно перерисовывает все дочернее окно
 
                     child.isModified = true; // файл изменен
+                }
+            }
+        }
+
+        public void BtnFont_Click(object sender, EventArgs e)
+        {
+            using (FontDialog fd = new FontDialog()) // вызываем выбор шрифта
+            {
+                if (fd.ShowDialog() == DialogResult.OK)
+                {
+                    currentFont = fd.Font;
                 }
             }
         }

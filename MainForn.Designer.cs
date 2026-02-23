@@ -53,9 +53,6 @@ namespace MDI
             btnOpen = new ToolStripButton();
             btnSave = new ToolStripButton();
             toolStripSeparator = new ToolStripSeparator();
-            вырезатьToolStripButton = new ToolStripButton();
-            копироватьToolStripButton = new ToolStripButton();
-            вставитьToolStripButton = new ToolStripButton();
             toolStripSeparator1 = new ToolStripSeparator();
             toolStrip1 = new ToolStrip();
             btnColor = new ToolStripButton();
@@ -64,16 +61,20 @@ namespace MDI
             btnPen = new ToolStripMenuItem();
             btnLine = new ToolStripMenuItem();
             btnEllipse = new ToolStripMenuItem();
+            btnStar = new ToolStripMenuItem();
+            btnBucket = new ToolStripMenuItem();
+            btnText = new ToolStripMenuItem();
+            toolStripMenuItem3 = new ToolStripSeparator();
             btnEraser = new ToolStripMenuItem();
+            toolStripMenuItem4 = new ToolStripSeparator();
+            btnZoomIn = new ToolStripMenuItem();
+            btnZoomOut = new ToolStripMenuItem();
             btnIsFilled = new ToolStripButton();
+            btnFont = new ToolStripButton();
             statusStrip1 = new StatusStrip();
             lblMousePos = new ToolStripStatusLabel();
             lblImageSize = new ToolStripStatusLabel();
             lblCurrentTool = new ToolStripStatusLabel();
-            btnZoomIn = new ToolStripMenuItem();
-            btnZoomOut = new ToolStripMenuItem();
-            toolStripMenuItem3 = new ToolStripSeparator();
-            toolStripMenuItem4 = new ToolStripSeparator();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -250,33 +251,6 @@ namespace MDI
             toolStripSeparator.Name = "toolStripSeparator";
             toolStripSeparator.Size = new Size(6, 40);
             // 
-            // вырезатьToolStripButton
-            // 
-            вырезатьToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            вырезатьToolStripButton.Image = (Image)resources.GetObject("вырезатьToolStripButton.Image");
-            вырезатьToolStripButton.ImageTransparentColor = Color.Magenta;
-            вырезатьToolStripButton.Name = "вырезатьToolStripButton";
-            вырезатьToolStripButton.Size = new Size(40, 34);
-            вырезатьToolStripButton.Text = "Вы&резать";
-            // 
-            // копироватьToolStripButton
-            // 
-            копироватьToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            копироватьToolStripButton.Image = (Image)resources.GetObject("копироватьToolStripButton.Image");
-            копироватьToolStripButton.ImageTransparentColor = Color.Magenta;
-            копироватьToolStripButton.Name = "копироватьToolStripButton";
-            копироватьToolStripButton.Size = new Size(40, 34);
-            копироватьToolStripButton.Text = "&Копировать";
-            // 
-            // вставитьToolStripButton
-            // 
-            вставитьToolStripButton.DisplayStyle = ToolStripItemDisplayStyle.Image;
-            вставитьToolStripButton.Image = (Image)resources.GetObject("вставитьToolStripButton.Image");
-            вставитьToolStripButton.ImageTransparentColor = Color.Magenta;
-            вставитьToolStripButton.Name = "вставитьToolStripButton";
-            вставитьToolStripButton.Size = new Size(40, 34);
-            вставитьToolStripButton.Text = "&Вставить";
-            // 
             // toolStripSeparator1
             // 
             toolStripSeparator1.Name = "toolStripSeparator1";
@@ -285,7 +259,7 @@ namespace MDI
             // toolStrip1
             // 
             toolStrip1.ImageScalingSize = new Size(28, 28);
-            toolStrip1.Items.AddRange(new ToolStripItem[] { btnNew, btnOpen, btnSave, toolStripSeparator, вырезатьToolStripButton, копироватьToolStripButton, вставитьToolStripButton, toolStripSeparator1, btnColor, toolStripLabel1, btnTool, btnIsFilled });
+            toolStrip1.Items.AddRange(new ToolStripItem[] { btnNew, btnOpen, btnSave, toolStripSeparator, toolStripSeparator1, btnColor, toolStripLabel1, btnTool, btnIsFilled, btnFont });
             toolStrip1.Location = new Point(0, 38);
             toolStrip1.Name = "toolStrip1";
             toolStrip1.Size = new Size(1875, 40);
@@ -311,7 +285,7 @@ namespace MDI
             // btnTool
             // 
             btnTool.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            btnTool.DropDownItems.AddRange(new ToolStripItem[] { btnPen, btnLine, btnEllipse, toolStripMenuItem3, btnEraser, toolStripMenuItem4, btnZoomIn, btnZoomOut });
+            btnTool.DropDownItems.AddRange(new ToolStripItem[] { btnPen, btnLine, btnEllipse, btnStar, btnBucket, btnText, toolStripMenuItem3, btnEraser, toolStripMenuItem4, btnZoomIn, btnZoomOut });
             btnTool.Image = (Image)resources.GetObject("btnTool.Image");
             btnTool.ImageTransparentColor = Color.Magenta;
             btnTool.Name = "btnTool";
@@ -321,30 +295,75 @@ namespace MDI
             // btnPen
             // 
             btnPen.Name = "btnPen";
-            btnPen.Size = new Size(315, 40);
+            btnPen.Size = new Size(288, 40);
             btnPen.Text = "Кисть";
             btnPen.Click += ToolMenuItem_Click;
             // 
             // btnLine
             // 
             btnLine.Name = "btnLine";
-            btnLine.Size = new Size(315, 40);
+            btnLine.Size = new Size(288, 40);
             btnLine.Text = "Линия";
             btnLine.Click += ToolMenuItem_Click;
             // 
             // btnEllipse
             // 
             btnEllipse.Name = "btnEllipse";
-            btnEllipse.Size = new Size(315, 40);
+            btnEllipse.Size = new Size(288, 40);
             btnEllipse.Text = "Эллипс";
             btnEllipse.Click += ToolMenuItem_Click;
+            // 
+            // btnStar
+            // 
+            btnStar.Name = "btnStar";
+            btnStar.Size = new Size(288, 40);
+            btnStar.Text = "Звезда";
+            btnStar.Click += ToolMenuItem_Click;
+            // 
+            // btnBucket
+            // 
+            btnBucket.Name = "btnBucket";
+            btnBucket.Size = new Size(288, 40);
+            btnBucket.Text = "Ведро с краской";
+            btnBucket.Click += ToolMenuItem_Click;
+            // 
+            // btnText
+            // 
+            btnText.Name = "btnText";
+            btnText.Size = new Size(288, 40);
+            btnText.Text = "Текст";
+            btnText.Click += ToolMenuItem_Click;
+            // 
+            // toolStripMenuItem3
+            // 
+            toolStripMenuItem3.Name = "toolStripMenuItem3";
+            toolStripMenuItem3.Size = new Size(285, 6);
             // 
             // btnEraser
             // 
             btnEraser.Name = "btnEraser";
-            btnEraser.Size = new Size(315, 40);
+            btnEraser.Size = new Size(288, 40);
             btnEraser.Text = "Ластик";
             btnEraser.Click += ToolMenuItem_Click;
+            // 
+            // toolStripMenuItem4
+            // 
+            toolStripMenuItem4.Name = "toolStripMenuItem4";
+            toolStripMenuItem4.Size = new Size(285, 6);
+            // 
+            // btnZoomIn
+            // 
+            btnZoomIn.Name = "btnZoomIn";
+            btnZoomIn.Size = new Size(288, 40);
+            btnZoomIn.Text = "Масштаб+";
+            btnZoomIn.Click += ToolMenuItem_Click;
+            // 
+            // btnZoomOut
+            // 
+            btnZoomOut.Name = "btnZoomOut";
+            btnZoomOut.Size = new Size(288, 40);
+            btnZoomOut.Text = "Масштаб-";
+            btnZoomOut.Click += ToolMenuItem_Click;
             // 
             // btnIsFilled
             // 
@@ -354,7 +373,19 @@ namespace MDI
             btnIsFilled.Name = "btnIsFilled";
             btnIsFilled.Size = new Size(94, 34);
             btnIsFilled.Text = "Заливка";
+            btnIsFilled.Visible = false;
             btnIsFilled.Click += BtnIsFilled_Click;
+            // 
+            // btnFont
+            // 
+            btnFont.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            btnFont.Image = (Image)resources.GetObject("btnFont.Image");
+            btnFont.ImageTransparentColor = Color.Magenta;
+            btnFont.Name = "btnFont";
+            btnFont.Size = new Size(84, 34);
+            btnFont.Text = "Шрифт";
+            btnFont.Visible = false;
+            btnFont.Click += BtnFont_Click;
             // 
             // statusStrip1
             // 
@@ -384,30 +415,6 @@ namespace MDI
             lblCurrentTool.Name = "lblCurrentTool";
             lblCurrentTool.Size = new Size(214, 30);
             lblCurrentTool.Text = "Текущий инструмент";
-            // 
-            // btnZoomIn
-            // 
-            btnZoomIn.Name = "btnZoomIn";
-            btnZoomIn.Size = new Size(315, 40);
-            btnZoomIn.Text = "Масштаб+";
-            btnZoomIn.Click += ToolMenuItem_Click;
-            // 
-            // btnZoomOut
-            // 
-            btnZoomOut.Name = "btnZoomOut";
-            btnZoomOut.Size = new Size(315, 40);
-            btnZoomOut.Text = "Масштаб-";
-            btnZoomOut.Click += ToolMenuItem_Click;
-            // 
-            // toolStripMenuItem3
-            // 
-            toolStripMenuItem3.Name = "toolStripMenuItem3";
-            toolStripMenuItem3.Size = new Size(312, 6);
-            // 
-            // toolStripMenuItem4
-            // 
-            toolStripMenuItem4.Name = "toolStripMenuItem4";
-            toolStripMenuItem4.Size = new Size(312, 6);
             // 
             // MainForm
             // 
@@ -448,9 +455,6 @@ namespace MDI
         private ToolStripButton btnOpen;
         private ToolStripButton btnSave;
         private ToolStripSeparator toolStripSeparator;
-        private ToolStripButton вырезатьToolStripButton;
-        private ToolStripButton копироватьToolStripButton;
-        private ToolStripButton вставитьToolStripButton;
         private ToolStripSeparator toolStripSeparator1;
         private ToolStrip toolStrip1;
         private ToolStripButton btnColor;
@@ -478,5 +482,9 @@ namespace MDI
         private ToolStripSeparator toolStripMenuItem4;
         private ToolStripMenuItem btnZoomIn;
         private ToolStripMenuItem btnZoomOut;
+        private ToolStripMenuItem btnStar;
+        private ToolStripMenuItem btnBucket;
+        private ToolStripMenuItem btnText;
+        private ToolStripButton btnFont;
     }
 }
