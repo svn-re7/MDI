@@ -40,21 +40,36 @@ namespace MDI
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e) // кликнули мышкой
         {
+            // Мастштабирование
+            if (MainForm.CurrentTool == MainForm.DrawingTool.ZoomIn)
+            {
+                ChangeScale(1.2f); // зумим на 20%
+                return;
+            }
+            if (MainForm.CurrentTool == MainForm.DrawingTool.ZoomOut)
+            {
+                ChangeScale(0.8f); // уменьшаем на 20
+                return;
+            }
+
+            // изменение флагов и т д
             isDrawing = true;
             isModified = true;
-            lastPoint = e.Location; // где начали рисовать | предыдущая точка
-            lastMovePoint = e.Location;
+            lastPoint = MapCoordinates(e.Location); // где начали рисовать | предыдущая точка
+            lastMovePoint = MapCoordinates(e.Location);
 
+            // создание пера
             myPen = new Pen(MainForm.CurrentColor, MainForm.CurrentWidth);
             myPen.StartCap = System.Drawing.Drawing2D.LineCap.Round; // скруглять начало
             myPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;   // скруглять конец
             myPen.LineJoin = System.Drawing.Drawing2D.LineJoin.Round; // скруглять стыки
+
         }
 
         private void PictureBox_MouseMove(object sender, MouseEventArgs e) // двигаем мышкой
         {
 
-            lastMovePoint = new Point(e.X, e.Y); // обновляем текущую точку для предпросмотра
+            lastMovePoint = MapCoordinates(e.Location); // обновляем текущую точку для предпросмотра
 
             if (isDrawing && myPen != null)
             {
@@ -86,13 +101,19 @@ namespace MDI
             // выводим координаты в главного окна
             if (MdiParent is MainForm main)
             {
-                main.lblMousePos.Text = $"Координаты: {e.X}, {e.Y}";
+                main.lblMousePos.Text = $"Координаты: {lastMovePoint.X}, {lastMovePoint.Y}";
             }
         }
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {
             if (isDrawing && myPen != null)
             {
+                // вычисление масштаб (преобразуем реальные пиксели в экранные)
+                float ratioX = (float)pictureBox.Width / pictureBox.Image.Width;
+                float ratioY = (float)pictureBox.Height / pictureBox.Image.Height;
+
+                e.Graphics.ScaleTransform(ratioX, ratioY); // применяем масштаб
+
                 // рисуем поверх временную фигуру
                 if (MainForm.CurrentTool == MainForm.DrawingTool.Line)
                 {
@@ -120,20 +141,21 @@ namespace MDI
         {
             if (isDrawing)
             {
+                lastMovePoint = MapCoordinates(e.Location);
                 // финализируем рисунок на Bitmap
                 using (Graphics g = Graphics.FromImage(pictureBox.Image))
                 {
                     if (MainForm.CurrentTool == MainForm.DrawingTool.Line) // если инструмент - линия
                     {
-                        g.DrawLine(myPen, lastPoint, e.Location); // рисуем фниальную линию
+                        g.DrawLine(myPen, lastPoint, lastMovePoint); // рисуем фниальную линию
                     }
                     else if (MainForm.CurrentTool == MainForm.DrawingTool.Ellipse) // если инструмент - эллипс
                     {
                         // вычисляем размеры прямоугольника, в который вписан эллипс
-                        int x = Math.Min(lastPoint.X, e.X); // самая левая точка
-                        int y = Math.Min(lastPoint.Y, e.Y); // самая верхняя точка
-                        int width = Math.Abs(e.X - lastPoint.X);
-                        int height = Math.Abs(e.Y - lastPoint.Y);
+                        int x = Math.Min(lastPoint.X, lastMovePoint.X); // самая левая точка
+                        int y = Math.Min(lastPoint.Y, lastMovePoint.Y); // самая верхняя точка
+                        int width = Math.Abs(lastMovePoint.X - lastPoint.X);
+                        int height = Math.Abs(lastMovePoint.Y - lastPoint.Y);
 
                         if (MainForm.IsFilled) // если заливка включена
                         {
@@ -211,6 +233,30 @@ namespace MDI
                     e.Cancel = true; // отменяем действие - не закрываем окно
                 }
             }
+        }
+
+        public void ChangeScale(float factor) // метод чтобы менять размер pictureBox (для масштабирования)
+        {
+            // новый размер
+            int newWidth = (int)(pictureBox.Width * factor);
+            int newHeight = (int)(pictureBox.Height * factor);
+
+            // ограничения
+            if (newWidth < 210 || newWidth > 5000) return;
+
+            pictureBox.Size = new Size(newWidth, newHeight);
+        }
+
+        private Point MapCoordinates(Point Point) // метод для пересчета координат с учетом масштаба
+        {
+            // вычисление пропрорации сжатия (преобразуем экранные пиксели в реальные)
+            float ratioX = (float)pictureBox.Image.Width / pictureBox.Width; // ширина оригинала / ширина окна
+            float ratioY = (float)pictureBox.Image.Height / pictureBox.Height;
+
+            return new Point(
+                (int)(Point.X * ratioX),
+                (int)(Point.Y * ratioY)
+            );
         }
     }
 }

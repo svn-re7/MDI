@@ -8,7 +8,7 @@ namespace MDI
         public static Color CurrentColor = Color.Black; // цвет пера
         public static int CurrentWidth = 3; // толщина пера
         public static bool IsFilled = false; // по умолчанию рисуем без заливки
-        public enum DrawingTool { Pen, Line, Ellipse, Eraser } // список констант - инструменты
+        public enum DrawingTool { Pen, Line, Ellipse, Eraser, ZoomIn, ZoomOut } // список констант - инструменты
 
         public static DrawingTool CurrentTool = DrawingTool.Pen; // текущий инструмент - перо
 
@@ -255,6 +255,12 @@ namespace MDI
                     break;
                 case "Ластик":
                     CurrentTool = DrawingTool.Eraser;
+                    break;
+                case "Масштаб+":
+                    CurrentTool = DrawingTool.ZoomIn;
+                    break;
+                case "Масштаб-":
+                    CurrentTool = DrawingTool.ZoomOut;
                     break;
             }
 

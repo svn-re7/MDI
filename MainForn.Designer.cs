@@ -70,6 +70,10 @@ namespace MDI
             lblMousePos = new ToolStripStatusLabel();
             lblImageSize = new ToolStripStatusLabel();
             lblCurrentTool = new ToolStripStatusLabel();
+            btnZoomIn = new ToolStripMenuItem();
+            btnZoomOut = new ToolStripMenuItem();
+            toolStripMenuItem3 = new ToolStripSeparator();
+            toolStripMenuItem4 = new ToolStripSeparator();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -155,7 +159,7 @@ namespace MDI
             // menuCanvasSize
             // 
             menuCanvasSize.Name = "menuCanvasSize";
-            menuCanvasSize.Size = new Size(315, 40);
+            menuCanvasSize.Size = new Size(270, 40);
             menuCanvasSize.Text = "Размер холста";
             menuCanvasSize.Click += MenuCanvasSize_Click;
             // 
@@ -307,7 +311,7 @@ namespace MDI
             // btnTool
             // 
             btnTool.DisplayStyle = ToolStripItemDisplayStyle.Text;
-            btnTool.DropDownItems.AddRange(new ToolStripItem[] { btnPen, btnLine, btnEllipse, btnEraser });
+            btnTool.DropDownItems.AddRange(new ToolStripItem[] { btnPen, btnLine, btnEllipse, toolStripMenuItem3, btnEraser, toolStripMenuItem4, btnZoomIn, btnZoomOut });
             btnTool.Image = (Image)resources.GetObject("btnTool.Image");
             btnTool.ImageTransparentColor = Color.Magenta;
             btnTool.Name = "btnTool";
@@ -317,28 +321,28 @@ namespace MDI
             // btnPen
             // 
             btnPen.Name = "btnPen";
-            btnPen.Size = new Size(200, 40);
+            btnPen.Size = new Size(315, 40);
             btnPen.Text = "Кисть";
             btnPen.Click += ToolMenuItem_Click;
             // 
             // btnLine
             // 
             btnLine.Name = "btnLine";
-            btnLine.Size = new Size(200, 40);
+            btnLine.Size = new Size(315, 40);
             btnLine.Text = "Линия";
             btnLine.Click += ToolMenuItem_Click;
             // 
             // btnEllipse
             // 
             btnEllipse.Name = "btnEllipse";
-            btnEllipse.Size = new Size(200, 40);
+            btnEllipse.Size = new Size(315, 40);
             btnEllipse.Text = "Эллипс";
             btnEllipse.Click += ToolMenuItem_Click;
             // 
             // btnEraser
             // 
             btnEraser.Name = "btnEraser";
-            btnEraser.Size = new Size(200, 40);
+            btnEraser.Size = new Size(315, 40);
             btnEraser.Text = "Ластик";
             btnEraser.Click += ToolMenuItem_Click;
             // 
@@ -380,6 +384,30 @@ namespace MDI
             lblCurrentTool.Name = "lblCurrentTool";
             lblCurrentTool.Size = new Size(214, 30);
             lblCurrentTool.Text = "Текущий инструмент";
+            // 
+            // btnZoomIn
+            // 
+            btnZoomIn.Name = "btnZoomIn";
+            btnZoomIn.Size = new Size(315, 40);
+            btnZoomIn.Text = "Масштаб+";
+            btnZoomIn.Click += ToolMenuItem_Click;
+            // 
+            // btnZoomOut
+            // 
+            btnZoomOut.Name = "btnZoomOut";
+            btnZoomOut.Size = new Size(315, 40);
+            btnZoomOut.Text = "Масштаб-";
+            btnZoomOut.Click += ToolMenuItem_Click;
+            // 
+            // toolStripMenuItem3
+            // 
+            toolStripMenuItem3.Name = "toolStripMenuItem3";
+            toolStripMenuItem3.Size = new Size(312, 6);
+            // 
+            // toolStripMenuItem4
+            // 
+            toolStripMenuItem4.Name = "toolStripMenuItem4";
+            toolStripMenuItem4.Size = new Size(312, 6);
             // 
             // MainForm
             // 
@@ -446,5 +474,9 @@ namespace MDI
         public ToolStripStatusLabel lblImageSize;
         public ToolStripStatusLabel lblCurrentTool;
         public ToolStripStatusLabel lblMousePos;
+        private ToolStripSeparator toolStripMenuItem3;
+        private ToolStripSeparator toolStripMenuItem4;
+        private ToolStripMenuItem btnZoomIn;
+        private ToolStripMenuItem btnZoomOut;
     }
 }

@@ -39,6 +39,7 @@
             pictureBox.Location = new Point(0, 0);
             pictureBox.Name = "pictureBox";
             pictureBox.Size = new Size(800, 450);
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox.TabIndex = 0;
             pictureBox.TabStop = false;
             pictureBox.Paint += pictureBox_Paint;
@@ -50,6 +51,7 @@
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoScroll = true;
             AutoSizeMode = AutoSizeMode.GrowAndShrink;
             ClientSize = new Size(800, 450);
             Controls.Add(pictureBox);
