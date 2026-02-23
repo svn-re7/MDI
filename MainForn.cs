@@ -16,6 +16,7 @@ namespace MDI
         public MainForm()
         {
             InitializeComponent();
+            DoubleBuffered = true;
 
             NumericUpDown num = new NumericUpDown(); // создаем объект счетчик
             num.Minimum = 1;
@@ -51,14 +52,7 @@ namespace MDI
             ChildForm newChild = new ChildForm(); // создаем экземпляр дочернего окна
             newChild.MdiParent = this; // должен открываться внутри MainForm
             newChild.Text = "Рисунок " + this.MdiChildren.Length.ToString(); // меняем заголовок
-
-            Bitmap bmp = new Bitmap(newChild.pictureBox.Width, newChild.pictureBox.Height); // создаем пустой холст
-            using (Graphics g = Graphics.FromImage(bmp))
-            {
-                g.Clear(Color.White); // делаем фон белым
-            }
-            newChild.pictureBox.Image = bmp; // определяем этот холст окну
-
+            
             newChild.Show();
         }
 
@@ -273,5 +267,45 @@ namespace MDI
             btnIsFilled.Checked = IsFilled; // визуально вдавливаем кнопку
         }
 
+        private void MenuCanvasSize_Click(object sender, EventArgs e)
+        {
+            // есть ли активное дочернее окно
+            if (ActiveMdiChild is ChildForm child)
+            {
+                // текущие размеры холста
+                int currentW = child.pictureBox.Image.Width;
+                int currentH = child.pictureBox.Image.Height;
+
+                CanvasSizeForm sizeForm = new CanvasSizeForm(currentW, currentH); // создаем диалоговое окно для изменения размера холста
+
+                if (sizeForm.ShowDialog() == DialogResult.OK) // если подтвердили изменение
+                {
+                    if (child.WindowState == FormWindowState.Maximized)
+                    {
+                        child.WindowState = FormWindowState.Normal;
+                    }
+
+                    // создаем битмап с новыми размерами
+                    Bitmap newBmp = new Bitmap(sizeForm.NewWidth, sizeForm.NewHeight);
+
+                    // переносим старое изображение на новое
+                    using (Graphics g = Graphics.FromImage(newBmp))
+                    {
+                        g.Clear(Color.White); // заливаем фон
+                        g.DrawImage(child.pictureBox.Image, 0, 0); // перенос старой части
+                    }
+
+                    // обновляем PictureBox
+                    child.pictureBox.Image.Dispose(); // удаляем старый битмап
+                    child.pictureBox.Image = newBmp;
+                    child.pictureBox.Size = newBmp.Size; // подгоняем размер контрола
+                    child.ClientSize = new Size(child.pictureBox.Width, child.pictureBox.Height); // подгоняем окно под новый размер
+                    lblImageSize.Text = $"Размер: {child.pictureBox.Image.Width} x {child.pictureBox.Image.Height}";
+                    child.Refresh();   // принудительно перерисовывает все дочернее окно
+
+                    child.isModified = true; // файл изменен
+                }
+            }
+        }
     }
 }

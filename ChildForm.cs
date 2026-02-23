@@ -23,6 +23,19 @@ namespace MDI
         {
             InitializeComponent();
             DoubleBuffered = true;
+            BackColor = Color.Gray;
+
+            // создаем холст
+            Bitmap bmp = new Bitmap(800, 600);
+            using (Graphics g = Graphics.FromImage(bmp))
+            {
+                g.Clear(Color.White);
+            }
+            pictureBox.Image = bmp;
+
+            // подгоняем размер pictureBox и формы
+            pictureBox.Size = bmp.Size;
+            ClientSize = new Size(pictureBox.Width, pictureBox.Height);
         }
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e) // кликнули мышкой
@@ -119,7 +132,7 @@ namespace MDI
                 pictureBox.Invalidate(); // перерисовываем
             }
 
-            if (!isDrawing || Math.Abs(e.X - lastMovePoint.X) > 10 || Math.Abs(e.Y - lastMovePoint.Y) > 10)
+            if (!isDrawing || Math.Abs(e.X - lastMovePoint.X) > 30 || Math.Abs(e.Y - lastMovePoint.Y) > 30)
             {
                 if (MdiParent is MainForm main)
                 {

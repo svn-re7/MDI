@@ -41,7 +41,7 @@ namespace MDI
             toolStripMenuItem1 = new ToolStripSeparator();
             menuExit = new ToolStripMenuItem();
             рисунокToolStripMenuItem = new ToolStripMenuItem();
-            размерХолстаToolStripMenuItem = new ToolStripMenuItem();
+            menuCanvasSize = new ToolStripMenuItem();
             окноToolStripMenuItem = new ToolStripMenuItem();
             menuCascade = new ToolStripMenuItem();
             menuHorizontal = new ToolStripMenuItem();
@@ -147,16 +147,17 @@ namespace MDI
             // 
             // рисунокToolStripMenuItem
             // 
-            рисунокToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { размерХолстаToolStripMenuItem });
+            рисунокToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { menuCanvasSize });
             рисунокToolStripMenuItem.Name = "рисунокToolStripMenuItem";
             рисунокToolStripMenuItem.Size = new Size(109, 34);
             рисунокToolStripMenuItem.Text = "&Рисунок";
             // 
-            // размерХолстаToolStripMenuItem
+            // menuCanvasSize
             // 
-            размерХолстаToolStripMenuItem.Name = "размерХолстаToolStripMenuItem";
-            размерХолстаToolStripMenuItem.Size = new Size(270, 40);
-            размерХолстаToolStripMenuItem.Text = "Размер холста";
+            menuCanvasSize.Name = "menuCanvasSize";
+            menuCanvasSize.Size = new Size(315, 40);
+            menuCanvasSize.Text = "Размер холста";
+            menuCanvasSize.Click += MenuCanvasSize_Click;
             // 
             // окноToolStripMenuItem
             // 
@@ -432,7 +433,7 @@ namespace MDI
         private ToolStripMenuItem menuAbout;
         private ToolStripSeparator toolStripMenuItem2;
         private ToolStripMenuItem рисунокToolStripMenuItem;
-        private ToolStripMenuItem размерХолстаToolStripMenuItem;
+        private ToolStripMenuItem menuCanvasSize;
         private ToolStripMenuItem menuArrangeIcons;
         private ToolStripDropDownButton btnTool;
         private ToolStripMenuItem btnPen;

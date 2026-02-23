@@ -35,7 +35,7 @@
             // pictureBox
             // 
             pictureBox.BackColor = Color.White;
-            pictureBox.Dock = DockStyle.Fill;
+            pictureBox.BorderStyle = BorderStyle.FixedSingle;
             pictureBox.Location = new Point(0, 0);
             pictureBox.Name = "pictureBox";
             pictureBox.Size = new Size(800, 450);
@@ -49,6 +49,7 @@
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
+            AutoSizeMode = AutoSizeMode.GrowAndShrink;
             ClientSize = new Size(800, 450);
             Controls.Add(pictureBox);
             Name = "ChildForm";

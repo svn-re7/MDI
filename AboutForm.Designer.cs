@@ -63,6 +63,7 @@
             MaximizeBox = false;
             MinimizeBox = false;
             Name = "AboutForm";
+            StartPosition = FormStartPosition.CenterParent;
             Text = "О программе";
             ResumeLayout(false);
             PerformLayout();
