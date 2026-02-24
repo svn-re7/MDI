@@ -260,9 +260,9 @@ namespace MDI
                         }
                     }
                 }
-                isDrawing = false;
                 pictureBox.Invalidate();
             }
+            isDrawing = false;
             myPen?.Dispose();
 
         }
