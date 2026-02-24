@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.IO;
 
 namespace MDI
 {
@@ -108,8 +109,8 @@ namespace MDI
             // изменение флагов и т д
             isDrawing = true;
             IsModified = true;
-            lastPoint = MapCoordinates(e.Location); // где начали рисовать | предыдущая точка
-            lastMovePoint = MapCoordinates(e.Location);
+            lastPoint = e.Location; // где начали рисовать | предыдущая точка
+            lastMovePoint = e.Location;
 
             // создание пера
             myPen = new Pen(MainForm.СurrentColor, MainForm.СurrentWidth);
@@ -122,7 +123,7 @@ namespace MDI
         private void PictureBox_MouseMove(object sender, MouseEventArgs e) // двигаем мышкой
         {
 
-            lastMovePoint = MapCoordinates(e.Location); // обновляем текущую точку для предпросмотра
+            lastMovePoint = e.Location; // обновляем текущую точку для предпросмотра
 
             if (isDrawing && myPen != null)
             {
@@ -134,12 +135,16 @@ namespace MDI
                 {
                     if (pictureBox.Image == null) return; // проверка на всякий случай
 
+                    // преобразуем координаты в настоящие
+                    Point imgPrev = MapCoordinates(lastPoint);
+                    Point imgCurr = MapCoordinates(lastMovePoint);
+
                     using (Graphics g = Graphics.FromImage(pictureBox.Image)) // рисуем прямо на холсте
                     {
                         if (MainForm.CurrentTool == MainForm.DrawingTool.Eraser)
                             myPen.Color = Color.White; // если ластик - временно белым
 
-                        g.DrawLine(myPen, lastPoint, lastMovePoint); // проводим линию от предыдущей точки до текущей
+                        g.DrawLine(myPen, imgPrev, imgCurr); // проводим линию от предыдущей точки до текущей
 
                         if (MainForm.CurrentTool == MainForm.DrawingTool.Eraser)
                             myPen.Color = MainForm.СurrentColor; // возвращаем основной цвет
@@ -154,19 +159,14 @@ namespace MDI
             // выводим координаты в главного окна
             if (MdiParent is MainForm main)
             {
-                main.lblMousePos.Text = $"Координаты: {lastMovePoint.X}, {lastMovePoint.Y}";
+                Point imgPos = MapCoordinates(lastMovePoint);
+                main.lblMousePos.Text = $"Координаты: {imgPos.X}, {imgPos.Y}";
             }
         }
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {
             if (isDrawing && myPen != null)
             {
-                // вычисление масштаб (преобразуем реальные пиксели в экранные)
-                float ratioX = (float)pictureBox.Width / pictureBox.Image.Width;
-                float ratioY = (float)pictureBox.Height / pictureBox.Image.Height;
-
-                e.Graphics.ScaleTransform(ratioX, ratioY); // применяем масштаб
-
                 // рисуем поверх временную фигуру
                 if (MainForm.CurrentTool == MainForm.DrawingTool.Star)
                 {
@@ -193,26 +193,30 @@ namespace MDI
             }
         }
 
-
         private void PictureBox_MouseUp(object sender, MouseEventArgs e) // опустили мышку
         {
             if (isDrawing && myPen != null)
             {
-                lastMovePoint = MapCoordinates(e.Location);
+                lastMovePoint = e.Location;
                 // финализируем рисунок на Bitmap
                 using (Graphics g = Graphics.FromImage(pictureBox.Image))
                 {
                     if (MainForm.CurrentTool == MainForm.DrawingTool.Line) // если инструмент - линия
                     {
-                        g.DrawLine(myPen, lastPoint, lastMovePoint); // рисуем фниальную линию
+                        // преобразуем координаты 
+                        Point imgA = MapCoordinates(lastPoint);
+                        Point imgB = MapCoordinates(lastMovePoint);
+                        g.DrawLine(myPen, imgA, imgB); // рисуем фниальную линию
                     }
                     else if (MainForm.CurrentTool == MainForm.DrawingTool.Ellipse) // если инструмент - эллипс
                     {
                         // вычисляем размеры прямоугольника, в который вписан эллипс
-                        int x = Math.Min(lastPoint.X, lastMovePoint.X); // самая левая точка
-                        int y = Math.Min(lastPoint.Y, lastMovePoint.Y); // самая верхняя точка
-                        int width = Math.Abs(lastMovePoint.X - lastPoint.X);
-                        int height = Math.Abs(lastMovePoint.Y - lastPoint.Y);
+                        Point imgA = MapCoordinates(lastPoint);
+                        Point imgB = MapCoordinates(lastMovePoint);
+                        int x = Math.Min(imgA.X, imgB.X);
+                        int y = Math.Min(imgA.Y, imgB.Y);
+                        int width = Math.Abs(imgB.X - imgA.X);
+                        int height = Math.Abs(imgB.Y - imgA.Y);
 
                         if (MainForm.IsFilled) // если заливка включена
                         {
@@ -226,37 +230,33 @@ namespace MDI
                             g.DrawEllipse(myPen, x, y, width, height);
                         }
                     }
-                    else if (MainForm.CurrentTool == MainForm.DrawingTool.Star)
+                    else if (MainForm.CurrentTool == MainForm.DrawingTool.Star) // рисование звезды
                     {
-                        // Вычисляем прямоугольник как для эллипса
-                        int x = Math.Min(lastPoint.X, lastMovePoint.X);
-                        int y = Math.Min(lastPoint.Y, lastMovePoint.Y);
-                        int width = Math.Abs(lastMovePoint.X - lastPoint.X);
-                        int height = Math.Abs(lastMovePoint.Y - lastPoint.Y);
+                        // преобразуем координаты 
+                        Point imgCenter = MapCoordinates(lastPoint);
+                        Point imgCurr = MapCoordinates(lastMovePoint);
 
-                        if (width > 0 && height > 0)
+                        int dx = imgCurr.X - imgCenter.X;
+                        int dy = imgCurr.Y - imgCenter.Y;
+
+                        int outerRadius = (int)Math.Sqrt(dx * dx + dy * dy);
+
+                        if (outerRadius < 2)
+                            return;
+
+                        Point[] points = GetStarPoints(imgCenter, outerRadius, MainForm.StarPoints, MainForm.StarRatio);
+
+                        if (points.Length < 3)
+                            return;
+
+                        if (MainForm.IsFilled)
                         {
-                            // центр прямоугольника
-                            Point center = new Point(x + width / 2, y + height / 2);
-                            // радиус - половина меньшей стороны
-                            int outerRadius = Math.Min(width, height) / 2;
-
-                            if (outerRadius > 0)
-                            {
-                                Point[] points = GetStarPoints(center, outerRadius, MainForm.StarPoints, MainForm.StarRatio);
-                                if (points.Length > 2)
-                                {
-                                    if (MainForm.IsFilled)
-                                    {
-                                        using (SolidBrush brush = new SolidBrush(MainForm.СurrentColor))
-                                            g.FillPolygon(brush, points);
-                                    }
-                                    else
-                                    {
-                                        g.DrawPolygon(myPen, points);
-                                    }
-                                }
-                            }
+                            using (SolidBrush brush = new SolidBrush(MainForm.СurrentColor))
+                                g.FillPolygon(brush, points);
+                        }
+                        else
+                        {
+                            g.DrawPolygon(myPen, points);
                         }
                     }
                 }
@@ -385,7 +385,7 @@ namespace MDI
             }
         }
 
-        private Point[] GetStarPoints(Point center, int outerRadius, int points, double ratio)
+        private Point[] GetStarPoints(Point center, int outerRadius, int points, double ratio) // метод для получения точек звезды на битмапе
         {
             if (outerRadius <= 0 || points < 3) return new Point[0];
 
@@ -399,7 +399,7 @@ namespace MDI
 
             for (int i = 0; i < totalPoints; i++)
             {
-                // Начинаем с верхнего луча (-PI/2) и добавляем смещение
+                // начинаем с верхнего луча (-PI/2) и добавляем смещение
                 double angle = -Math.PI / 2 + i * angleStep;
                 int radius = (i % 2 == 0) ? outerRadius : innerRadius;
 
@@ -412,35 +412,58 @@ namespace MDI
             return starPoints;
         }
 
-        private void DrawStarPreview(Graphics g, Point p1, Point p2)
+        private PointF[] GetStarPointsPreview(PointF center, float outerRadius, int points, double ratio) // метод для получения точек звезды для предпросмотра
         {
-            int x = Math.Min(p1.X, p2.X);
-            int y = Math.Min(p1.Y, p2.Y);
-            int width = Math.Abs(p2.X - p1.X);
-            int height = Math.Abs(p2.Y - p1.Y);
+            if (outerRadius <= 1 || points < 3) return Array.Empty<PointF>();
 
-            if (width > 0 && height > 0)
+            float innerRadius = (float)(outerRadius * ratio);
+            if (innerRadius < 1) innerRadius = 1;
+
+            int totalPoints = points * 2;
+            double angleStep = Math.PI / points;
+
+            PointF[] starPoints = new PointF[totalPoints];
+
+            for (int i = 0; i < totalPoints; i++)
             {
-                Point center = new Point(x + width / 2, y + height / 2);
-                int outerRadius = Math.Min(width, height) / 2;
+                double angle = -Math.PI / 2 + i * angleStep;
+                float radius = (i % 2 == 0) ? outerRadius : innerRadius;
 
-                if (outerRadius > 0)
-                {
-                    Point[] points = GetStarPoints(center, outerRadius, MainForm.StarPoints, MainForm.StarRatio);
-                    if (points.Length > 2)
-                    {
-                        if (MainForm.IsFilled)
-                        {
-                            using (SolidBrush brush = new SolidBrush(MainForm.СurrentColor))
-                                g.FillPolygon(brush, points);
-                        }
-                        else
-                        {
-                            // Используем myPen, который уже создан
-                            g.DrawPolygon(myPen, points);
-                        }
-                    }
-                }
+                float x = center.X + (float)(radius * Math.Cos(angle));
+                float y = center.Y + (float)(radius * Math.Sin(angle));
+
+                starPoints[i] = new PointF(x, y);
+            }
+
+            return starPoints;
+        }
+
+        private void DrawStarPreview(Graphics g, Point p1, Point p2) // метод для рисования предпросмотра звезды
+        {
+            // центр звезды — точка, где нажали мышь
+            PointF center = new PointF(p1.X, p1.Y);
+
+            // радиус - расстояние от центра до текущей позиции мыши
+            float dx = p2.X - p1.X;
+            float dy = p2.Y - p1.Y;
+            float outerRadius = (float)Math.Sqrt(dx * dx + dy * dy);
+
+            if (outerRadius < 2)
+                return;
+
+            PointF[] points = GetStarPointsPreview(center, outerRadius, MainForm.StarPoints, MainForm.StarRatio);
+
+            if (points.Length < 3 || myPen == null)
+                return;
+
+            if (MainForm.IsFilled)
+            {
+                using (SolidBrush brush = new SolidBrush(MainForm.СurrentColor))
+                    g.FillPolygon(brush, points);
+            }
+            else
+            {
+                g.DrawPolygon(myPen, points);
             }
         }
     }
