@@ -5,10 +5,18 @@ namespace MDI
 {
     public partial class MainForm : Form
     {
-        public static Color CurrentColor = Color.Black; // цвет пера
-        public static int CurrentWidth = 3; // толщина пера
+        public static Color СurrentColor = Color.Black; // цвет пера
+        public static int СurrentWidth = 3; // толщина пера
         public static bool IsFilled = false; // по умолчанию рисуем без заливки
-        public static Font? currentFont;
+        public static Font? CurrentFont;
+        public static int StarPoints = 5;  // количество лучей звезды
+        public static double StarRatio = 0.4;      // отношение внутреннего радиуса к внешнему
+
+        // счетчики для звезды
+        private ToolStripControlHost? hostStarPoints;
+        private ToolStripLabel? lblStarPoints;
+        private ToolStripControlHost? hostStarRatio;
+        private ToolStripLabel? lblStarRatio;
         public enum DrawingTool { Pen, Line, Ellipse, Eraser, ZoomIn, ZoomOut, Text, Bucket, Star } // список констант - инструменты
 
         public static DrawingTool CurrentTool = DrawingTool.Pen; // текущий инструмент - перо
@@ -19,28 +27,79 @@ namespace MDI
             InitializeComponent();
             DoubleBuffered = true;
 
-            NumericUpDown num = new NumericUpDown(); // создаем объект счетчик
-            num.Minimum = 1;
-            num.Maximum = 50;
-            num.Value = 3;
-            num.Width = 50;
+            // счетчик для выбора толщины кисти
+            NumericUpDown numCurrentWidth = new NumericUpDown(); // создаем объект счетчик
+            numCurrentWidth.Minimum = 1;
+            numCurrentWidth.Maximum = 50;
+            numCurrentWidth.Value = 3;
+            numCurrentWidth.Width = 50;
 
-            num.ValueChanged += Num_ValueChanged; // подписываем Num_ValueChanged на изименение счетчика
+            numCurrentWidth.ValueChanged += Num_ValueChanged; // подписываем Num_ValueChanged на изименение счетчика
 
-            ToolStripControlHost host = new ToolStripControlHost(num); // обертка для счетчика чтобы положить его в ToolStrip
+            ToolStripControlHost hostCurrentWidth = new ToolStripControlHost(numCurrentWidth); // обертка для счетчика чтобы положить его в ToolStrip
 
-            ToolStripLabel hostLabel = new ToolStripLabel("Толщина:");
-            toolStrip1.Items.Add(hostLabel);
-            hostLabel.ToolTipText = "Толщина пера (от 1 до 50)";
-            toolStrip1.Items.Add(host);
+            ToolStripLabel lblCurrentWidth = new ToolStripLabel("Толщина:");
+            toolStrip1.Items.Add(lblCurrentWidth);
+            lblCurrentWidth.ToolTipText = "Толщина пера (от 1 до 50)";
+            toolStrip1.Items.Add(hostCurrentWidth);
+
+            // счетчик для выбора кол-ва лучей в звезде
+            NumericUpDown numStarPoints = new NumericUpDown();
+            numStarPoints.Minimum = 3;
+            numStarPoints.Maximum = 30;
+            numStarPoints.Value = StarPoints;
+            numStarPoints.Width = 50;
+            numStarPoints.ValueChanged += NumStarPoints_ValueChanged;
+
+            hostStarPoints = new ToolStripControlHost(numStarPoints);
+            lblStarPoints = new ToolStripLabel("Лучи:");
+            lblStarPoints.ToolTipText = "Количество лучей звезды";
+
+            // счетчик для отношения радиусов
+            NumericUpDown numStarRatio = new NumericUpDown();
+            numStarRatio.Minimum = 2;    // будем использовать целые значения потом делить на 10
+            numStarRatio.Maximum = 8;
+            numStarRatio.Value = (int)(StarRatio * 10);
+            numStarRatio.Increment = 1;
+            numStarRatio.Width = 50;
+            numStarRatio.ValueChanged += NumStarRatio_ValueChanged;
+
+            hostStarRatio = new ToolStripControlHost(numStarRatio);
+            lblStarRatio = new ToolStripLabel("Отношение радиусов:");
+            lblStarRatio.ToolTipText = "Отношение внутреннего радиуса к внешнему (0.2–0.8)";
+
+            // добавляем на панель
+            toolStrip1.Items.Add(lblStarPoints);
+            toolStrip1.Items.Add(hostStarPoints);
+            toolStrip1.Items.Add(lblStarRatio);
+            toolStrip1.Items.Add(hostStarRatio);
+
+            // скрываем по умолчанию
+            hostStarPoints.Visible = false;
+            lblStarPoints.Visible = false;
+            hostStarRatio.Visible = false;
+            lblStarRatio.Visible = false;
+
         }
 
         private void Num_ValueChanged(object? sender, EventArgs e) // изменение толщины
         {
             if (sender is NumericUpDown n) // событие это изменение счетчика
             {
-                CurrentWidth = (int)n.Value;
+                СurrentWidth = (int)n.Value;
             }
+        }
+
+        private void NumStarPoints_ValueChanged(object sender, EventArgs e) // изменение кол-ва лучей звезды
+        {
+            if (sender is NumericUpDown n)
+                StarPoints = (int)n.Value;
+        }
+
+        private void NumStarRatio_ValueChanged(object sender, EventArgs e) // изменение отношения радиусов звезды
+        {
+            if (sender is NumericUpDown n)
+                StarRatio = (double)(n.Value / 10);
         }
 
         private void MenuExitToolStripMenuItem_Click(object sender, EventArgs e)
@@ -94,7 +153,7 @@ namespace MDI
 
             if (cd.ShowDialog() == DialogResult.OK) // если подтвердили выбор
             {
-                CurrentColor = cd.Color; // присваиваем выбранный цвет переменной
+                СurrentColor = cd.Color; // присваиваем выбранный цвет переменной
 
                 btnColor.BackColor = cd.Color; // меняем цвет иконки для наглядности
             }
@@ -141,7 +200,7 @@ namespace MDI
                     if (activeChild.CurrentFilePath != null) // уже сохранялось раньше
                     {
                         activeChild.pictureBox.Image.Save(activeChild.CurrentFilePath); // сохраняем по тому же пути
-                        activeChild.isModified = false;
+                        activeChild.IsModified = false;
                     }
                     else // если файл до этого не сохраняли
                     {
@@ -172,7 +231,7 @@ namespace MDI
                             activeChild.pictureBox.Image.Save(sfd.FileName); // сохраняем изображение
                             activeChild.CurrentFilePath = sfd.FileName; // сохраняем путь
                             activeChild.Text = Path.GetFileName(sfd.FileName); // меняем заголовок на имя файла
-                            activeChild.isModified = false;
+                            activeChild.IsModified = false;
                         }
                     }
                     catch (Exception ex) // если ошибка при сохранении
@@ -241,6 +300,15 @@ namespace MDI
             btnFont.Visible = false;
             btnIsFilled.Visible = false;
 
+            // скрываем контролы звезды
+            if (hostStarPoints != null && lblStarPoints != null && hostStarRatio != null && lblStarRatio != null)
+            {
+                hostStarPoints.Visible = false;
+                lblStarPoints.Visible = false;
+                hostStarRatio.Visible = false;
+                lblStarRatio.Visible = false;
+            }
+
             ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender; // приводим sender к типу пункта меню
 
 
@@ -276,6 +344,15 @@ namespace MDI
                     break;
                 case "Звезда":
                     CurrentTool = DrawingTool.Star;
+                    btnIsFilled.Visible = true;
+
+                    if (hostStarPoints != null && lblStarPoints != null && hostStarRatio != null && lblStarRatio != null)
+                    {
+                        hostStarPoints.Visible = true;
+                        lblStarPoints.Visible = true;
+                        hostStarRatio.Visible = true;
+                        lblStarRatio.Visible = true;
+                    }
                     break;
             }
 
@@ -330,7 +407,7 @@ namespace MDI
                     lblImageSize.Text = $"Размер: {child.pictureBox.Image.Width} x {child.pictureBox.Image.Height}";
                     child.Refresh();   // принудительно перерисовывает все дочернее окно
 
-                    child.isModified = true; // файл изменен
+                    child.IsModified = true; // файл изменен
                 }
             }
         }
@@ -341,7 +418,7 @@ namespace MDI
             {
                 if (fd.ShowDialog() == DialogResult.OK)
                 {
-                    currentFont = fd.Font;
+                    CurrentFont = fd.Font;
                 }
             }
         }
