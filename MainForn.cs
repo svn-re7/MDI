@@ -5,21 +5,21 @@ namespace MDI
 {
     public partial class MainForm : Form
     {
-        public static Color СurrentColor = Color.Black; // цвет пера
-        public static int СurrentWidth = 3; // толщина пера
-        public static bool IsFilled = false; // по умолчанию рисуем без заливки
+        public static Color CurrentColor = Color.Black; // С†РІРµС‚ РїРµСЂР°
+        public static int CurrentWidth = 3; // С‚РѕР»С‰РёРЅР° РїРµСЂР°
+        public static bool IsFilled = false; // РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ СЂРёСЃСѓРµРј Р±РµР· Р·Р°Р»РёРІРєРё
         public static Font? CurrentFont;
-        public static int StarPoints = 5;  // количество лучей звезды
-        public static double StarRatio = 0.4;      // отношение внутреннего радиуса к внешнему
+        public static int StarPoints = 5;  // РєРѕР»РёС‡РµСЃС‚РІРѕ Р»СѓС‡РµР№ Р·РІРµР·РґС‹
+        public static double StarRatio = 0.4;      // РѕС‚РЅРѕС€РµРЅРёРµ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ СЂР°РґРёСѓСЃР° Рє РІРЅРµС€РЅРµРјСѓ
 
-        // счетчики для звезды
+        // СЃС‡РµС‚С‡РёРєРё РґР»СЏ Р·РІРµР·РґС‹
         private ToolStripControlHost? hostStarPoints;
         private ToolStripLabel? lblStarPoints;
         private ToolStripControlHost? hostStarRatio;
         private ToolStripLabel? lblStarRatio;
-        public enum DrawingTool { Pen, Line, Ellipse, Eraser, ZoomIn, ZoomOut, Text, Bucket, Star } // список констант - инструменты
+        public enum DrawingTool { Pen, Line, Ellipse, Eraser, ZoomIn, ZoomOut, Text, Bucket, Star } // СЃРїРёСЃРѕРє РєРѕРЅСЃС‚Р°РЅС‚ - РёРЅСЃС‚СЂСѓРјРµРЅС‚С‹
 
-        public static DrawingTool CurrentTool = DrawingTool.Pen; // текущий инструмент - перо
+        public static DrawingTool CurrentTool = DrawingTool.Pen; // С‚РµРєСѓС‰РёР№ РёРЅСЃС‚СЂСѓРјРµРЅС‚ - РїРµСЂРѕ
 
 
         public MainForm()
@@ -27,23 +27,23 @@ namespace MDI
             InitializeComponent();
             DoubleBuffered = true;
 
-            // счетчик для выбора толщины кисти
-            NumericUpDown numCurrentWidth = new NumericUpDown(); // создаем объект счетчик
+            // СЃС‡РµС‚С‡РёРє РґР»СЏ РІС‹Р±РѕСЂР° С‚РѕР»С‰РёРЅС‹ РєРёСЃС‚Рё
+            NumericUpDown numCurrentWidth = new NumericUpDown(); // СЃРѕР·РґР°РµРј РѕР±СЉРµРєС‚ СЃС‡РµС‚С‡РёРє
             numCurrentWidth.Minimum = 1;
             numCurrentWidth.Maximum = 50;
             numCurrentWidth.Value = 3;
             numCurrentWidth.Width = 50;
 
-            numCurrentWidth.ValueChanged += Num_ValueChanged; // подписываем Num_ValueChanged на изименение счетчика
+            numCurrentWidth.ValueChanged += Num_ValueChanged; // РїРѕРґРїРёСЃС‹РІР°РµРј Num_ValueChanged РЅР° РёР·РёРјРµРЅРµРЅРёРµ СЃС‡РµС‚С‡РёРєР°
 
-            ToolStripControlHost hostCurrentWidth = new ToolStripControlHost(numCurrentWidth); // обертка для счетчика чтобы положить его в ToolStrip
+            ToolStripControlHost hostCurrentWidth = new ToolStripControlHost(numCurrentWidth); // РѕР±РµСЂС‚РєР° РґР»СЏ СЃС‡РµС‚С‡РёРєР° С‡С‚РѕР±С‹ РїРѕР»РѕР¶РёС‚СЊ РµРіРѕ РІ ToolStrip
 
-            ToolStripLabel lblCurrentWidth = new ToolStripLabel("Толщина:");
+            ToolStripLabel lblCurrentWidth = new ToolStripLabel("РўРѕР»С‰РёРЅР°:");
             toolStrip1.Items.Add(lblCurrentWidth);
-            lblCurrentWidth.ToolTipText = "Толщина пера (от 1 до 50)";
+            lblCurrentWidth.ToolTipText = "РўРѕР»С‰РёРЅР° РїРµСЂР° (РѕС‚ 1 РґРѕ 50)";
             toolStrip1.Items.Add(hostCurrentWidth);
 
-            // счетчик для выбора кол-ва лучей в звезде
+            // СЃС‡РµС‚С‡РёРє РґР»СЏ РІС‹Р±РѕСЂР° РєРѕР»-РІР° Р»СѓС‡РµР№ РІ Р·РІРµР·РґРµ
             NumericUpDown numStarPoints = new NumericUpDown();
             numStarPoints.Minimum = 3;
             numStarPoints.Maximum = 30;
@@ -52,12 +52,12 @@ namespace MDI
             numStarPoints.ValueChanged += NumStarPoints_ValueChanged;
 
             hostStarPoints = new ToolStripControlHost(numStarPoints);
-            lblStarPoints = new ToolStripLabel("Лучи:");
-            lblStarPoints.ToolTipText = "Количество лучей звезды";
+            lblStarPoints = new ToolStripLabel("Р›СѓС‡Рё:");
+            lblStarPoints.ToolTipText = "РљРѕР»РёС‡РµСЃС‚РІРѕ Р»СѓС‡РµР№ Р·РІРµР·РґС‹";
 
-            // счетчик для отношения радиусов
+            // СЃС‡РµС‚С‡РёРє РґР»СЏ РѕС‚РЅРѕС€РµРЅРёСЏ СЂР°РґРёСѓСЃРѕРІ
             NumericUpDown numStarRatio = new NumericUpDown();
-            numStarRatio.Minimum = 2;    // будем использовать целые значения потом делить на 10
+            numStarRatio.Minimum = 2;    // Р±СѓРґРµРј РёСЃРїРѕР»СЊР·РѕРІР°С‚СЊ С†РµР»С‹Рµ Р·РЅР°С‡РµРЅРёСЏ РїРѕС‚РѕРј РґРµР»РёС‚СЊ РЅР° 10
             numStarRatio.Maximum = 8;
             numStarRatio.Value = (int)(StarRatio * 10);
             numStarRatio.Increment = 1;
@@ -65,16 +65,16 @@ namespace MDI
             numStarRatio.ValueChanged += NumStarRatio_ValueChanged;
 
             hostStarRatio = new ToolStripControlHost(numStarRatio);
-            lblStarRatio = new ToolStripLabel("Отношение радиусов:");
-            lblStarRatio.ToolTipText = "Отношение внутреннего радиуса к внешнему (0.2–0.8)";
+            lblStarRatio = new ToolStripLabel("РћС‚РЅРѕС€РµРЅРёРµ СЂР°РґРёСѓСЃРѕРІ:");
+            lblStarRatio.ToolTipText = "РћС‚РЅРѕС€РµРЅРёРµ РІРЅСѓС‚СЂРµРЅРЅРµРіРѕ СЂР°РґРёСѓСЃР° Рє РІРЅРµС€РЅРµРјСѓ (0.2вЂ“0.8)";
 
-            // добавляем на панель
+            // РґРѕР±Р°РІР»СЏРµРј РЅР° РїР°РЅРµР»СЊ
             toolStrip1.Items.Add(lblStarPoints);
             toolStrip1.Items.Add(hostStarPoints);
             toolStrip1.Items.Add(lblStarRatio);
             toolStrip1.Items.Add(hostStarRatio);
 
-            // скрываем по умолчанию
+            // СЃРєСЂС‹РІР°РµРј РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
             hostStarPoints.Visible = false;
             lblStarPoints.Visible = false;
             hostStarRatio.Visible = false;
@@ -82,21 +82,21 @@ namespace MDI
 
         }
 
-        private void Num_ValueChanged(object? sender, EventArgs e) // изменение толщины
+        private void Num_ValueChanged(object? sender, EventArgs e) // РёР·РјРµРЅРµРЅРёРµ С‚РѕР»С‰РёРЅС‹
         {
-            if (sender is NumericUpDown n) // событие это изменение счетчика
+            if (sender is NumericUpDown n) // СЃРѕР±С‹С‚РёРµ СЌС‚Рѕ РёР·РјРµРЅРµРЅРёРµ СЃС‡РµС‚С‡РёРєР°
             {
-                СurrentWidth = (int)n.Value;
+                CurrentWidth = (int)n.Value;
             }
         }
 
-        private void NumStarPoints_ValueChanged(object sender, EventArgs e) // изменение кол-ва лучей звезды
+        private void NumStarPoints_ValueChanged(object sender, EventArgs e) // РёР·РјРµРЅРµРЅРёРµ РєРѕР»-РІР° Р»СѓС‡РµР№ Р·РІРµР·РґС‹
         {
             if (sender is NumericUpDown n)
                 StarPoints = (int)n.Value;
         }
 
-        private void NumStarRatio_ValueChanged(object sender, EventArgs e) // изменение отношения радиусов звезды
+        private void NumStarRatio_ValueChanged(object sender, EventArgs e) // РёР·РјРµРЅРµРЅРёРµ РѕС‚РЅРѕС€РµРЅРёСЏ СЂР°РґРёСѓСЃРѕРІ Р·РІРµР·РґС‹
         {
             if (sender is NumericUpDown n)
                 StarRatio = (double)(n.Value / 10);
@@ -107,22 +107,22 @@ namespace MDI
             this.Close();
         }
 
-        private void MenuNew_Click(object sender, EventArgs e) // создание холста
+        private void MenuNew_Click(object sender, EventArgs e) // СЃРѕР·РґР°РЅРёРµ С…РѕР»СЃС‚Р°
         {
-            ChildForm newChild = new ChildForm(); // создаем экземпляр дочернего окна
-            newChild.MdiParent = this; // должен открываться внутри MainForm
-            newChild.Text = "Рисунок " + this.MdiChildren.Length.ToString(); // меняем заголовок
+            ChildForm newChild = new ChildForm(); // СЃРѕР·РґР°РµРј СЌРєР·РµРјРїР»СЏСЂ РґРѕС‡РµСЂРЅРµРіРѕ РѕРєРЅР°
+            newChild.MdiParent = this; // РґРѕР»Р¶РµРЅ РѕС‚РєСЂС‹РІР°С‚СЊСЃСЏ РІРЅСѓС‚СЂРё MainForm
+            newChild.Text = "Р РёСЃСѓРЅРѕРє " + this.MdiChildren.Length.ToString(); // РјРµРЅСЏРµРј Р·Р°РіРѕР»РѕРІРѕРє
 
             newChild.Show();
         }
 
 
-        private void UpdateStatusTool() // вспомогательный метод для отображения текущего инструмента
+        private void UpdateStatusTool() // РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Р№ РјРµС‚РѕРґ РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ С‚РµРєСѓС‰РµРіРѕ РёРЅСЃС‚СЂСѓРјРµРЅС‚Р°
         {
-            lblCurrentTool.Text = $"Инструмент: {btnTool.Text}";
+            lblCurrentTool.Text = $"РРЅСЃС‚СЂСѓРјРµРЅС‚: {btnTool.Text}";
         }
 
-        private void MainForm_MdiChildActivate(object sender, EventArgs e) // событие активации окна
+        private void MainForm_MdiChildActivate(object sender, EventArgs e) // СЃРѕР±С‹С‚РёРµ Р°РєС‚РёРІР°С†РёРё РѕРєРЅР°
         {
             bool hasActiveChild = (ActiveMdiChild != null);
 
@@ -134,10 +134,10 @@ namespace MDI
             {
                 if (child.pictureBox.Image != null)
                 {
-                    lblImageSize.Text = $"Размер: {child.pictureBox.Image.Width} x {child.pictureBox.Image.Height}";
+                    lblImageSize.Text = $"Р Р°Р·РјРµСЂ: {child.pictureBox.Image.Width} x {child.pictureBox.Image.Height}";
                 }
 
-                UpdateStatusTool(); // отображаем инструмент
+                UpdateStatusTool(); // РѕС‚РѕР±СЂР°Р¶Р°РµРј РёРЅСЃС‚СЂСѓРјРµРЅС‚
 
             }
             else
@@ -147,42 +147,42 @@ namespace MDI
             }
         }
 
-        private void BtnColor_Click(object sender, EventArgs e) // выбор цвета
+        private void BtnColor_Click(object sender, EventArgs e) // РІС‹Р±РѕСЂ С†РІРµС‚Р°
         {
-            ColorDialog cd = new ColorDialog(); // создаем меню выбора цвета
+            ColorDialog cd = new ColorDialog(); // СЃРѕР·РґР°РµРј РјРµРЅСЋ РІС‹Р±РѕСЂР° С†РІРµС‚Р°
 
-            if (cd.ShowDialog() == DialogResult.OK) // если подтвердили выбор
+            if (cd.ShowDialog() == DialogResult.OK) // РµСЃР»Рё РїРѕРґС‚РІРµСЂРґРёР»Рё РІС‹Р±РѕСЂ
             {
-                СurrentColor = cd.Color; // присваиваем выбранный цвет переменной
+                CurrentColor = cd.Color; // РїСЂРёСЃРІР°РёРІР°РµРј РІС‹Р±СЂР°РЅРЅС‹Р№ С†РІРµС‚ РїРµСЂРµРјРµРЅРЅРѕР№
 
-                btnColor.BackColor = cd.Color; // меняем цвет иконки для наглядности
+                btnColor.BackColor = cd.Color; // РјРµРЅСЏРµРј С†РІРµС‚ РёРєРѕРЅРєРё РґР»СЏ РЅР°РіР»СЏРґРЅРѕСЃС‚Рё
             }
         }
-        private void MenuCascade_Click(object sender, EventArgs e) // каскадное отображение
+        private void MenuCascade_Click(object sender, EventArgs e) // РєР°СЃРєР°РґРЅРѕРµ РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ
         {
             this.LayoutMdi(MdiLayout.Cascade);
         }
 
-        private void MenuHorizontal_Click(object sender, EventArgs e) // горизонтальное отображение
+        private void MenuHorizontal_Click(object sender, EventArgs e) // РіРѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅРѕРµ РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ
         {
             this.LayoutMdi(MdiLayout.TileHorizontal);
         }
 
-        private void MenuVertical_Click(object sender, EventArgs e) // вертикальное отображение
+        private void MenuVertical_Click(object sender, EventArgs e) // РІРµСЂС‚РёРєР°Р»СЊРЅРѕРµ РѕС‚РѕР±СЂР°Р¶РµРЅРёРµ
         {
             this.LayoutMdi(MdiLayout.TileVertical);
         }
 
-        private void menuArrangeIcons_Click(object sender, EventArgs e) // упорядочить иконки
+        private void menuArrangeIcons_Click(object sender, EventArgs e) // СѓРїРѕСЂСЏРґРѕС‡РёС‚СЊ РёРєРѕРЅРєРё
         {
             this.LayoutMdi(MdiLayout.ArrangeIcons);
 
         }
 
-        private void MenuAbout_Click(object sender, EventArgs e) // о программе
+        private void MenuAbout_Click(object sender, EventArgs e) // Рѕ РїСЂРѕРіСЂР°РјРјРµ
         {
-            AboutForm frm = new AboutForm(); // создаем окно
-            frm.ShowDialog(); // показываем окно (не закрывается пока не закроют)
+            AboutForm frm = new AboutForm(); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ
+            frm.ShowDialog(); // РїРѕРєР°Р·С‹РІР°РµРј РѕРєРЅРѕ (РЅРµ Р·Р°РєСЂС‹РІР°РµС‚СЃСЏ РїРѕРєР° РЅРµ Р·Р°РєСЂРѕСЋС‚)
         }
 
         private void MainForm_Load(object sender, EventArgs e)
@@ -190,96 +190,96 @@ namespace MDI
 
         }
 
-        public void MenuSave_Click(object sender, EventArgs e) // сохранить
+        public void MenuSave_Click(object sender, EventArgs e) // СЃРѕС…СЂР°РЅРёС‚СЊ
         {
-            if (ActiveMdiChild != null) // если есть активное окно
+            if (ActiveMdiChild != null) // РµСЃР»Рё РµСЃС‚СЊ Р°РєС‚РёРІРЅРѕРµ РѕРєРЅРѕ
             {
-                ChildForm activeChild = (ChildForm)ActiveMdiChild; // активное окно
+                ChildForm activeChild = (ChildForm)ActiveMdiChild; // Р°РєС‚РёРІРЅРѕРµ РѕРєРЅРѕ
                 try
                 {
-                    if (activeChild.CurrentFilePath != null) // уже сохранялось раньше
+                    if (activeChild.CurrentFilePath != null) // СѓР¶Рµ СЃРѕС…СЂР°РЅСЏР»РѕСЃСЊ СЂР°РЅСЊС€Рµ
                     {
-                        activeChild.pictureBox.Image.Save(activeChild.CurrentFilePath); // сохраняем по тому же пути
+                        activeChild.pictureBox.Image.Save(activeChild.CurrentFilePath); // СЃРѕС…СЂР°РЅСЏРµРј РїРѕ С‚РѕРјСѓ Р¶Рµ РїСѓС‚Рё
                         activeChild.IsModified = false;
                     }
-                    else // если файл до этого не сохраняли
+                    else // РµСЃР»Рё С„Р°Р№Р» РґРѕ СЌС‚РѕРіРѕ РЅРµ СЃРѕС…СЂР°РЅСЏР»Рё
                     {
                         MenuSaveAs_Click(sender, e);
                     }
                 }
-                catch (Exception ex) // если ошибка при сохранении
+                catch (Exception ex) // РµСЃР»Рё РѕС€РёР±РєР° РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё
                 {
-                    MessageBox.Show("Ошибка: " + ex.Message, "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("РћС€РёР±РєР°: " + ex.Message, "Р’РЅРёРјР°РЅРёРµ", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        public void MenuSaveAs_Click(object sender, EventArgs e) // сохранить как
+        public void MenuSaveAs_Click(object sender, EventArgs e) // СЃРѕС…СЂР°РЅРёС‚СЊ РєР°Рє
         {
-            if (ActiveMdiChild != null) // если есть активное окно
+            if (ActiveMdiChild != null) // РµСЃР»Рё РµСЃС‚СЊ Р°РєС‚РёРІРЅРѕРµ РѕРєРЅРѕ
             {
-                SaveFileDialog sfd = new SaveFileDialog();// создаем окно для сохранения
-                sfd.Filter = "PNG Image|*.png|JPeg Image|*.jpg|Bitmap Image|*.bmp"; // фильтры
+                SaveFileDialog sfd = new SaveFileDialog();// СЃРѕР·РґР°РµРј РѕРєРЅРѕ РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ
+                sfd.Filter = "PNG Image|*.png|JPeg Image|*.jpg|Bitmap Image|*.bmp"; // С„РёР»СЊС‚СЂС‹
 
                 if (sfd.ShowDialog() == DialogResult.OK)
                 {
                     try
                     {
-                        ChildForm activeChild = (ChildForm)ActiveMdiChild; // активное окно
-                        if (activeChild.pictureBox.Image != null) // если есть изображение
+                        ChildForm activeChild = (ChildForm)ActiveMdiChild; // Р°РєС‚РёРІРЅРѕРµ РѕРєРЅРѕ
+                        if (activeChild.pictureBox.Image != null) // РµСЃР»Рё РµСЃС‚СЊ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
                         {
-                            activeChild.pictureBox.Image.Save(sfd.FileName); // сохраняем изображение
-                            activeChild.CurrentFilePath = sfd.FileName; // сохраняем путь
-                            activeChild.Text = Path.GetFileName(sfd.FileName); // меняем заголовок на имя файла
+                            activeChild.pictureBox.Image.Save(sfd.FileName); // СЃРѕС…СЂР°РЅСЏРµРј РёР·РѕР±СЂР°Р¶РµРЅРёРµ
+                            activeChild.CurrentFilePath = sfd.FileName; // СЃРѕС…СЂР°РЅСЏРµРј РїСѓС‚СЊ
+                            activeChild.Text = Path.GetFileName(sfd.FileName); // РјРµРЅСЏРµРј Р·Р°РіРѕР»РѕРІРѕРє РЅР° РёРјСЏ С„Р°Р№Р»Р°
                             activeChild.IsModified = false;
                         }
                     }
-                    catch (Exception ex) // если ошибка при сохранении
+                    catch (Exception ex) // РµСЃР»Рё РѕС€РёР±РєР° РїСЂРё СЃРѕС…СЂР°РЅРµРЅРёРё
                     {
-                        MessageBox.Show("Ошибка: " + ex.Message, "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                        MessageBox.Show("РћС€РёР±РєР°: " + ex.Message, "Р’РЅРёРјР°РЅРёРµ", MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }
 
             }
         }
 
-        private void MenuOpen_Click(object sender, EventArgs e) // открыть
+        private void MenuOpen_Click(object sender, EventArgs e) // РѕС‚РєСЂС‹С‚СЊ
         {
-            OpenFileDialog ofd = new OpenFileDialog(); // окно выбора файла
-            ofd.Filter = "PNG Image|*.png|JPeg Image|*.jpg|Bitmap Image|*.bmp"; // фильтры
+            OpenFileDialog ofd = new OpenFileDialog(); // РѕРєРЅРѕ РІС‹Р±РѕСЂР° С„Р°Р№Р»Р°
+            ofd.Filter = "PNG Image|*.png|JPeg Image|*.jpg|Bitmap Image|*.bmp"; // С„РёР»СЊС‚СЂС‹
 
             if (ofd.ShowDialog() == DialogResult.OK)
             {
                 try
                 {
-                    ChildForm newChild = new ChildForm(); // создаем окно для холста
+                    ChildForm newChild = new ChildForm(); // СЃРѕР·РґР°РµРј РѕРєРЅРѕ РґР»СЏ С…РѕР»СЃС‚Р°
                     newChild.MdiParent = this;
 
-                    using (Image tempImg = Image.FromFile(ofd.FileName)) // открываем файл во временную переменную
+                    using (Image tempImg = Image.FromFile(ofd.FileName)) // РѕС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РІРѕ РІСЂРµРјРµРЅРЅСѓСЋ РїРµСЂРµРјРµРЅРЅСѓСЋ
                     {
-                        Bitmap bmp = new Bitmap(tempImg); // создаем Bitmap холста
-                        newChild.pictureBox.Image = bmp; // присваиваем Bitmap окну
-                        newChild.pictureBox.Size = bmp.Size; // подгоняем размер контрола
-                        newChild.ClientSize = new Size(newChild.pictureBox.Width, newChild.pictureBox.Height); // подгоняем окно под новый размер
+                        Bitmap bmp = new Bitmap(tempImg); // СЃРѕР·РґР°РµРј Bitmap С…РѕР»СЃС‚Р°
+                        newChild.pictureBox.Image = bmp; // РїСЂРёСЃРІР°РёРІР°РµРј Bitmap РѕРєРЅСѓ
+                        newChild.pictureBox.Size = bmp.Size; // РїРѕРґРіРѕРЅСЏРµРј СЂР°Р·РјРµСЂ РєРѕРЅС‚СЂРѕР»Р°
+                        newChild.ClientSize = new Size(newChild.pictureBox.Width, newChild.pictureBox.Height); // РїРѕРґРіРѕРЅСЏРµРј РѕРєРЅРѕ РїРѕРґ РЅРѕРІС‹Р№ СЂР°Р·РјРµСЂ
 
                     }
 
-                    newChild.Text = Path.GetFileName(ofd.FileName); // заголовок окна - название файла
-                    newChild.CurrentFilePath = ofd.FileName; // запоминаем путь к загруженному файлу
-                    newChild.UpdateCursor(); // обновляем курсор
+                    newChild.Text = Path.GetFileName(ofd.FileName); // Р·Р°РіРѕР»РѕРІРѕРє РѕРєРЅР° - РЅР°Р·РІР°РЅРёРµ С„Р°Р№Р»Р°
+                    newChild.CurrentFilePath = ofd.FileName; // Р·Р°РїРѕРјРёРЅР°РµРј РїСѓС‚СЊ Рє Р·Р°РіСЂСѓР¶РµРЅРЅРѕРјСѓ С„Р°Р№Р»Сѓ
+                    newChild.UpdateCursor(); // РѕР±РЅРѕРІР»СЏРµРј РєСѓСЂСЃРѕСЂ
 
                     newChild.Show();
 
 
                 }
-                catch (Exception ex) // если ошибка при открытии
+                catch (Exception ex) // РµСЃР»Рё РѕС€РёР±РєР° РїСЂРё РѕС‚РєСЂС‹С‚РёРё
                 {
-                    MessageBox.Show("Ошибка: " + ex.Message, "Внимание", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("РћС€РёР±РєР°: " + ex.Message, "Р’РЅРёРјР°РЅРёРµ", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
             }
         }
 
-        // кнопки для панели управления
+        // РєРЅРѕРїРєРё РґР»СЏ РїР°РЅРµР»Рё СѓРїСЂР°РІР»РµРЅРёСЏ
         private void BtnNew_Click(object sender, EventArgs e)
         {
             MenuNew_Click(sender, e);
@@ -295,12 +295,12 @@ namespace MDI
             MenuSave_Click(sender, e);
         }
 
-        private void ToolMenuItem_Click(object sender, EventArgs e) // панель выбора инструментов
+        private void ToolMenuItem_Click(object sender, EventArgs e) // РїР°РЅРµР»СЊ РІС‹Р±РѕСЂР° РёРЅСЃС‚СЂСѓРјРµРЅС‚РѕРІ
         {
             btnFont.Visible = false;
             btnIsFilled.Visible = false;
 
-            // скрываем контролы звезды
+            // СЃРєСЂС‹РІР°РµРј РєРѕРЅС‚СЂРѕР»С‹ Р·РІРµР·РґС‹
             if (hostStarPoints != null && lblStarPoints != null && hostStarRatio != null && lblStarRatio != null)
             {
                 hostStarPoints.Visible = false;
@@ -309,40 +309,40 @@ namespace MDI
                 lblStarRatio.Visible = false;
             }
 
-            ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender; // приводим sender к типу пункта меню
+            ToolStripMenuItem clickedItem = (ToolStripMenuItem)sender; // РїСЂРёРІРѕРґРёРј sender Рє С‚РёРїСѓ РїСѓРЅРєС‚Р° РјРµРЅСЋ
 
 
-            btnTool.Text = clickedItem.Text; // меняем текст поля на название инструмента
+            btnTool.Text = clickedItem.Text; // РјРµРЅСЏРµРј С‚РµРєСЃС‚ РїРѕР»СЏ РЅР° РЅР°Р·РІР°РЅРёРµ РёРЅСЃС‚СЂСѓРјРµРЅС‚Р°
 
-            switch (clickedItem.Text) // меняет текущий инструмент на выбранный
+            switch (clickedItem.Text) // РјРµРЅСЏРµС‚ С‚РµРєСѓС‰РёР№ РёРЅСЃС‚СЂСѓРјРµРЅС‚ РЅР° РІС‹Р±СЂР°РЅРЅС‹Р№
             {
-                case "Кисть":
+                case "РљРёСЃС‚СЊ":
                     CurrentTool = DrawingTool.Pen;
                     break;
-                case "Линия":
+                case "Р›РёРЅРёСЏ":
                     CurrentTool = DrawingTool.Line;
                     break;
-                case "Эллипс":
+                case "Р­Р»Р»РёРїСЃ":
                     CurrentTool = DrawingTool.Ellipse;
                     btnIsFilled.Visible = true;
                     break;
-                case "Ластик":
+                case "Р›Р°СЃС‚РёРє":
                     CurrentTool = DrawingTool.Eraser;
                     break;
-                case "Масштаб+":
+                case "РњР°СЃС€С‚Р°Р±+":
                     CurrentTool = DrawingTool.ZoomIn;
                     break;
-                case "Масштаб-":
+                case "РњР°СЃС€С‚Р°Р±-":
                     CurrentTool = DrawingTool.ZoomOut;
                     break;
-                case "Текст":
+                case "РўРµРєСЃС‚":
                     CurrentTool = DrawingTool.Text;
                     btnFont.Visible = true;
                     break;
-                case "Ведро с краской":
+                case "Р’РµРґСЂРѕ СЃ РєСЂР°СЃРєРѕР№":
                     CurrentTool = DrawingTool.Bucket;
                     break;
-                case "Звезда":
+                case "Р—РІРµР·РґР°":
                     CurrentTool = DrawingTool.Star;
                     btnIsFilled.Visible = true;
 
@@ -356,7 +356,7 @@ namespace MDI
                     break;
             }
 
-            if (ActiveMdiChild is ChildForm child) // если есть активное окно
+            if (ActiveMdiChild is ChildForm child) // РµСЃР»Рё РµСЃС‚СЊ Р°РєС‚РёРІРЅРѕРµ РѕРєРЅРѕ
             {
                 child.UpdateCursor();
             }
@@ -368,53 +368,53 @@ namespace MDI
         private void BtnIsFilled_Click(object sender, EventArgs e)
         {
             IsFilled = !IsFilled;
-            btnIsFilled.Checked = IsFilled; // визуально вдавливаем кнопку
+            btnIsFilled.Checked = IsFilled; // РІРёР·СѓР°Р»СЊРЅРѕ РІРґР°РІР»РёРІР°РµРј РєРЅРѕРїРєСѓ
         }
 
         private void MenuCanvasSize_Click(object sender, EventArgs e)
         {
-            // есть ли активное дочернее окно
+            // РµСЃС‚СЊ Р»Рё Р°РєС‚РёРІРЅРѕРµ РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
             if (ActiveMdiChild is ChildForm child)
             {
-                // текущие размеры холста
+                // С‚РµРєСѓС‰РёРµ СЂР°Р·РјРµСЂС‹ С…РѕР»СЃС‚Р°
                 int currentW = child.pictureBox.Image.Width;
                 int currentH = child.pictureBox.Image.Height;
 
-                CanvasSizeForm sizeForm = new CanvasSizeForm(currentW, currentH); // создаем диалоговое окно для изменения размера холста
+                CanvasSizeForm sizeForm = new CanvasSizeForm(currentW, currentH); // СЃРѕР·РґР°РµРј РґРёР°Р»РѕРіРѕРІРѕРµ РѕРєРЅРѕ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ СЂР°Р·РјРµСЂР° С…РѕР»СЃС‚Р°
 
-                if (sizeForm.ShowDialog() == DialogResult.OK) // если подтвердили изменение
+                if (sizeForm.ShowDialog() == DialogResult.OK) // РµСЃР»Рё РїРѕРґС‚РІРµСЂРґРёР»Рё РёР·РјРµРЅРµРЅРёРµ
                 {
                     if (child.WindowState == FormWindowState.Maximized)
                     {
                         child.WindowState = FormWindowState.Normal;
                     }
 
-                    // создаем битмап с новыми размерами
+                    // СЃРѕР·РґР°РµРј Р±РёС‚РјР°Рї СЃ РЅРѕРІС‹РјРё СЂР°Р·РјРµСЂР°РјРё
                     Bitmap newBmp = new Bitmap(sizeForm.NewWidth, sizeForm.NewHeight);
 
-                    // переносим старое изображение на новое
+                    // РїРµСЂРµРЅРѕСЃРёРј СЃС‚Р°СЂРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ РЅР° РЅРѕРІРѕРµ
                     using (Graphics g = Graphics.FromImage(newBmp))
                     {
-                        g.Clear(Color.White); // заливаем фон
-                        g.DrawImage(child.pictureBox.Image, 0, 0); // перенос старой части
+                        g.Clear(Color.White); // Р·Р°Р»РёРІР°РµРј С„РѕРЅ
+                        g.DrawImage(child.pictureBox.Image, 0, 0); // РїРµСЂРµРЅРѕСЃ СЃС‚Р°СЂРѕР№ С‡Р°СЃС‚Рё
                     }
 
-                    // обновляем PictureBox
-                    child.pictureBox.Image.Dispose(); // удаляем старый битмап
+                    // РѕР±РЅРѕРІР»СЏРµРј PictureBox
+                    child.pictureBox.Image.Dispose(); // СѓРґР°Р»СЏРµРј СЃС‚Р°СЂС‹Р№ Р±РёС‚РјР°Рї
                     child.pictureBox.Image = newBmp;
-                    child.pictureBox.Size = newBmp.Size; // подгоняем размер контрола
-                    child.ClientSize = new Size(child.pictureBox.Width, child.pictureBox.Height); // подгоняем окно под новый размер
-                    lblImageSize.Text = $"Размер: {child.pictureBox.Image.Width} x {child.pictureBox.Image.Height}";
-                    child.Refresh();   // принудительно перерисовывает все дочернее окно
+                    child.pictureBox.Size = newBmp.Size; // РїРѕРґРіРѕРЅСЏРµРј СЂР°Р·РјРµСЂ РєРѕРЅС‚СЂРѕР»Р°
+                    child.ClientSize = new Size(child.pictureBox.Width, child.pictureBox.Height); // РїРѕРґРіРѕРЅСЏРµРј РѕРєРЅРѕ РїРѕРґ РЅРѕРІС‹Р№ СЂР°Р·РјРµСЂ
+                    lblImageSize.Text = $"Р Р°Р·РјРµСЂ: {child.pictureBox.Image.Width} x {child.pictureBox.Image.Height}";
+                    child.Refresh();   // РїСЂРёРЅСѓРґРёС‚РµР»СЊРЅРѕ РїРµСЂРµСЂРёСЃРѕРІС‹РІР°РµС‚ РІСЃРµ РґРѕС‡РµСЂРЅРµРµ РѕРєРЅРѕ
 
-                    child.IsModified = true; // файл изменен
+                    child.IsModified = true; // С„Р°Р№Р» РёР·РјРµРЅРµРЅ
                 }
             }
         }
 
-        public void BtnFont_Click(object sender, EventArgs e) // изменить шрифт
+        public void BtnFont_Click(object sender, EventArgs e) // РёР·РјРµРЅРёС‚СЊ С€СЂРёС„С‚
         {
-            using (FontDialog fd = new FontDialog()) // вызываем выбор шрифта
+            using (FontDialog fd = new FontDialog()) // РІС‹Р·С‹РІР°РµРј РІС‹Р±РѕСЂ С€СЂРёС„С‚Р°
             {
                 if (fd.ShowDialog() == DialogResult.OK)
                 {

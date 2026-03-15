@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -62,7 +62,7 @@ namespace MDI
                 if (point.X >= 0 && point.X < pictureBox.Image.Width &&
                     point.Y >= 0 && point.Y < pictureBox.Image.Height)
                 {
-                    FloodFill((Bitmap)pictureBox.Image, point, MainForm.СurrentColor);
+                    FloodFill((Bitmap)pictureBox.Image, point, MainForm.CurrentColor);
                     IsModified = true;
                     pictureBox.Invalidate();
                 }
@@ -92,7 +92,7 @@ namespace MDI
                                 // сглаживание 
                                 g.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAliasGridFit;
 
-                                using (SolidBrush brush = new SolidBrush(MainForm.СurrentColor))
+                                using (SolidBrush brush = new SolidBrush(MainForm.CurrentColor))
                                 {
                                     if (MainForm.CurrentFont != null)
                                         g.DrawString(textToDraw, MainForm.CurrentFont, brush, point);
@@ -113,7 +113,7 @@ namespace MDI
             lastMovePoint = e.Location;
 
             // создание пера
-            myPen = new Pen(MainForm.СurrentColor, MainForm.СurrentWidth);
+            myPen = new Pen(MainForm.CurrentColor, MainForm.CurrentWidth);
             myPen.StartCap = System.Drawing.Drawing2D.LineCap.Round; // скруглять начало
             myPen.EndCap = System.Drawing.Drawing2D.LineCap.Round;   // скруглять конец
             myPen.LineJoin = System.Drawing.Drawing2D.LineJoin.Round; // скруглять стыки
@@ -147,7 +147,7 @@ namespace MDI
                         g.DrawLine(myPen, imgPrev, imgCurr); // проводим линию от предыдущей точки до текущей
 
                         if (MainForm.CurrentTool == MainForm.DrawingTool.Eraser)
-                            myPen.Color = MainForm.СurrentColor; // возвращаем основной цвет
+                            myPen.Color = MainForm.CurrentColor; // возвращаем основной цвет
                     }
                     lastPoint = lastMovePoint; // фиксируем новую точку как прошлую
                 }
@@ -185,7 +185,7 @@ namespace MDI
                     int height = Math.Abs(lastMovePoint.Y - lastPoint.Y);
 
                     if (MainForm.IsFilled) // если включена заливка
-                        using (SolidBrush br = new SolidBrush(MainForm.СurrentColor))
+                        using (SolidBrush br = new SolidBrush(MainForm.CurrentColor))
                             e.Graphics.FillEllipse(br, x, y, width, height);
                     else
                         e.Graphics.DrawEllipse(myPen, x, y, width, height); // без заливки
@@ -220,7 +220,7 @@ namespace MDI
 
                         if (MainForm.IsFilled) // если заливка включена
                         {
-                            using (SolidBrush myBrush = new SolidBrush(MainForm.СurrentColor)) // используем SolidBrush для закрашивания
+                            using (SolidBrush myBrush = new SolidBrush(MainForm.CurrentColor)) // используем SolidBrush для закрашивания
                             {
                                 g.FillEllipse(myBrush, x, y, width, height);
                             }
@@ -251,7 +251,7 @@ namespace MDI
 
                         if (MainForm.IsFilled)
                         {
-                            using (SolidBrush brush = new SolidBrush(MainForm.СurrentColor))
+                            using (SolidBrush brush = new SolidBrush(MainForm.CurrentColor))
                                 g.FillPolygon(brush, points);
                         }
                         else
@@ -458,7 +458,7 @@ namespace MDI
 
             if (MainForm.IsFilled)
             {
-                using (SolidBrush brush = new SolidBrush(MainForm.СurrentColor))
+                using (SolidBrush brush = new SolidBrush(MainForm.CurrentColor))
                     g.FillPolygon(brush, points);
             }
             else
