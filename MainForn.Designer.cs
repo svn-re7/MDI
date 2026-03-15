@@ -49,6 +49,8 @@ namespace MDI
             menuArrangeIcons = new ToolStripMenuItem();
             справкаToolStripMenuItem = new ToolStripMenuItem();
             menuAbout = new ToolStripMenuItem();
+            filtersToolStripMenuItem = new ToolStripMenuItem();
+            pluginSettingsMenuItem = new ToolStripMenuItem();
             btnNew = new ToolStripButton();
             btnOpen = new ToolStripButton();
             btnSave = new ToolStripButton();
@@ -75,6 +77,7 @@ namespace MDI
             lblMousePos = new ToolStripStatusLabel();
             lblImageSize = new ToolStripStatusLabel();
             lblCurrentTool = new ToolStripStatusLabel();
+            toolStripMenuItem5 = new ToolStripSeparator();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
             statusStrip1.SuspendLayout();
@@ -83,7 +86,7 @@ namespace MDI
             // menuStrip1
             // 
             menuStrip1.ImageScalingSize = new Size(28, 28);
-            menuStrip1.Items.AddRange(new ToolStripItem[] { файлToolStripMenuItem, рисунокToolStripMenuItem, окноToolStripMenuItem, справкаToolStripMenuItem });
+            menuStrip1.Items.AddRange(new ToolStripItem[] { файлToolStripMenuItem, рисунокToolStripMenuItem, окноToolStripMenuItem, справкаToolStripMenuItem, filtersToolStripMenuItem });
             menuStrip1.Location = new Point(0, 0);
             menuStrip1.MdiWindowListItem = окноToolStripMenuItem;
             menuStrip1.Name = "menuStrip1";
@@ -212,6 +215,19 @@ namespace MDI
             menuAbout.Size = new Size(261, 40);
             menuAbout.Text = "О программе";
             menuAbout.Click += MenuAbout_Click;
+            // 
+            // filtersToolStripMenuItem
+            // 
+            filtersToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { pluginSettingsMenuItem, toolStripMenuItem5 });
+            filtersToolStripMenuItem.Name = "filtersToolStripMenuItem";
+            filtersToolStripMenuItem.Size = new Size(116, 34);
+            filtersToolStripMenuItem.Text = "Фильтры";
+            // 
+            // pluginSettingsMenuItem
+            // 
+            pluginSettingsMenuItem.Name = "pluginSettingsMenuItem";
+            pluginSettingsMenuItem.Size = new Size(329, 40);
+            pluginSettingsMenuItem.Text = "Настройки плагинов";
             // 
             // btnNew
             // 
@@ -416,6 +432,11 @@ namespace MDI
             lblCurrentTool.Size = new Size(214, 30);
             lblCurrentTool.Text = "Текущий инструмент";
             // 
+            // toolStripMenuItem5
+            // 
+            toolStripMenuItem5.Name = "toolStripMenuItem5";
+            toolStripMenuItem5.Size = new Size(326, 6);
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
@@ -486,5 +507,8 @@ namespace MDI
         private ToolStripMenuItem btnBucket;
         private ToolStripMenuItem btnText;
         private ToolStripButton btnFont;
+        private ToolStripMenuItem filtersToolStripMenuItem;
+        private ToolStripMenuItem pluginSettingsMenuItem;
+        private ToolStripSeparator toolStripMenuItem5;
     }
 }
