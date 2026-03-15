@@ -1,10 +1,15 @@
-using System.Windows.Forms;
-using System.IO;
+﻿using System.IO;
+using System.Reflection;
+using System.Collections.Generic;
+using System.Drawing;
+using System.Linq;
+using PluginInterface;
 
 namespace MDI
 {
     public partial class MainForm : Form
     {
+        private Dictionary<string, IPlugin> plugins = new Dictionary<string, IPlugin>();
         public static Color CurrentColor = Color.Black; // цвет пера
         public static int CurrentWidth = 3; // толщина пера
         public static bool IsFilled = false; // по умолчанию рисуем без заливки
@@ -25,6 +30,8 @@ namespace MDI
         public MainForm()
         {
             InitializeComponent();
+            FindPlugins();      // 1. Нашли dll
+            CreatePluginsMenu(); // 2. Создали кнопки
             DoubleBuffered = true;
 
             // счетчик для выбора толщины кисти
@@ -424,5 +431,96 @@ namespace MDI
         }
 
 
+        void FindPlugins()
+        {
+            string folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins");
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
+            string[] files = Directory.GetFiles(folder, "*.dll");
+
+            foreach (string file in files)
+            {
+                if (file.EndsWith("PluginInterface.dll", StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                try
+                {
+                    Assembly assembly = Assembly.LoadFrom(file);
+                    
+                    Type[] types;
+                    try 
+                    {
+                        types = assembly.GetTypes();
+                    }
+                    catch (ReflectionTypeLoadException ex)
+                    {
+                        types = ex.Types.Where(t => t != null).ToArray();
+                        foreach (var loaderEx in ex.LoaderExceptions)
+                        {
+                            if (loaderEx != null)
+                                MessageBox.Show($"Ошибка загрузки типов в {file}: {loaderEx.Message}");
+                        }
+                    }
+
+                    foreach (Type type in types)
+                    {
+                        if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface)
+                        {
+                            IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
+                            plugins.Add(plugin.Name, plugin);
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка загрузки плагина {file}: {ex.Message}");
+                }
+            }
+            
+            if (plugins.Count == 0)
+            {
+                 MessageBox.Show($"Плагины не найдены. Путь поиска: {folder}\nФайлов DLL в папке: {files.Length}");
+            }
+        }
+
+        private void CreatePluginsMenu()
+{
+    // Очищаем старые пункты, если они были (кроме настроек и разделителя)
+    // Предположим, что настройки — это 0-й элемент, а разделитель — 1-й.
+    while (filtersToolStripMenuItem.DropDownItems.Count > 2)
+    {
+        filtersToolStripMenuItem.DropDownItems.RemoveAt(2);
+    }
+
+    foreach (var plugin in plugins.Values)
+    {
+        ToolStripMenuItem item = new ToolStripMenuItem(plugin.Name);
+        item.Click += (sender, e) => OnPluginClick(plugin); // Подписываемся на клик
+        filtersToolStripMenuItem.DropDownItems.Add(item);
+    }
+}
+
+        private void OnPluginClick(IPlugin plugin)
+        {
+            // Получаем активное дочернее окно
+            ChildForm activeChild = ActiveMdiChild as ChildForm;
+
+            if (activeChild != null && activeChild.pictureBox.Image != null)
+            {
+                // Пока делаем синхронно (как в примере лабы), 
+                // асинхронность на 10 баллов добавим чуть позже.
+        
+                Bitmap bmp = (Bitmap)activeChild.pictureBox.Image;
+                plugin.Transform(bmp);
+        
+                activeChild.IsModified = true;
+                activeChild.pictureBox.Invalidate(); // Перерисовываем
+            }
+            else
+            {
+                MessageBox.Show("Нет активного изображения для применения фильтра.");
+            }
+        }
     }
 }
