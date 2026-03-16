@@ -605,44 +605,41 @@ namespace MDI
             }
         }
 
-        private System.Threading.CancellationTokenSource? cts;
-
-        private void BtnCancel_Click(object? sender, EventArgs e)
-        {
-            cts?.Cancel();
-        }
-
         private async void OnPluginClick(IPlugin plugin)
         {
             ChildForm? activeChild = ActiveMdiChild as ChildForm;
 
             if (activeChild != null && activeChild.pictureBox.Image != null)
             {
+                if (activeChild.IsFilterRunning)
+                {
+                    MessageBox.Show("На этом холсте уже применяется фильтр.");
+                    return;
+                }
+
                 try
                 {
                     // Подготовка UI
-                    progressBar.Visible = true;
-                    lblProgress.Visible = true;
-                    btnCancel.Visible = true;
-                    progressBar.Value = 0;
-                    filtersToolStripMenuItem.Enabled = false; // Блокируем меню
+                    activeChild.panelProgress.Visible = true;
+                    activeChild.pbFilterProgress.Value = 0;
+                    activeChild.IsFilterRunning = true;
+                    activeChild.UpdateCursor();
 
-                    cts = new System.Threading.CancellationTokenSource();
+                    activeChild.cts = new System.Threading.CancellationTokenSource();
                     var progress = new Progress<int>(v => 
                     {
-                        progressBar.Value = v;
-                        lblProgress.Text = $"Прогресс: {v}%";
+                        activeChild.pbFilterProgress.Value = v;
                     });
 
-
+                    // Копия изображения для работы в другом потоке
                     Bitmap bmp = new Bitmap(activeChild.pictureBox.Image);
                     
                     await Task.Run(() => 
                     {
-                        plugin.Transform(bmp, progress, cts.Token);
+                        plugin.Transform(bmp, progress, activeChild.cts.Token);
                     });
 
-                    if (cts.Token.IsCancellationRequested)
+                    if (activeChild.cts.Token.IsCancellationRequested)
                     {
                         MessageBox.Show("Операция отменена.");
                     }
@@ -661,12 +658,14 @@ namespace MDI
                 }
                 finally
                 {
-                    progressBar.Visible = false;
-                    lblProgress.Visible = false;
-                    btnCancel.Visible = false;
-                    filtersToolStripMenuItem.Enabled = true;
-                    cts?.Dispose();
-                    cts = null;
+                    if (activeChild != null)
+                    {
+                        activeChild.panelProgress.Visible = false;
+                        activeChild.IsFilterRunning = false;
+                        activeChild.UpdateCursor();
+                        activeChild.cts?.Dispose();
+                        activeChild.cts = null;
+                    }
                 }
             }
             else

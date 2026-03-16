@@ -8,16 +8,25 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Threading;
 
 namespace MDI
 {
     public partial class ChildForm : Form
     {
+        public CancellationTokenSource? cts;
+        
+        private void btnCancelFilter_Click(object? sender, EventArgs e)
+        {
+            cts?.Cancel();
+        }
+
         bool isDrawing = false;
         Point lastPoint; // точка начала рисования фигуры
         Point lastMovePoint; // точка для рисования предварительной фигуры
         public string? CurrentFilePath = null; // путь до файла
         public bool IsModified = false; // был ли изменен рисунок
+        public bool IsFilterRunning = false; // применяется ли сейчас фильтр
         Pen? myPen;
         public ChildForm()
         {
@@ -25,6 +34,7 @@ namespace MDI
             DoubleBuffered = true;
             BackColor = Color.Gray;
             UpdateCursor();
+            btnCancelFilter.Click += btnCancelFilter_Click;
 
             // создаем холст
             Bitmap bmp = new Bitmap(800, 600);
@@ -41,6 +51,8 @@ namespace MDI
 
         private void PictureBox_MouseDown(object sender, MouseEventArgs e) // кликнули мышкой
         {
+            if (IsFilterRunning) return;
+
             // Мастштабирование
             if (MainForm.CurrentTool == MainForm.DrawingTool.ZoomIn)
             {
@@ -122,6 +134,7 @@ namespace MDI
 
         private void PictureBox_MouseMove(object sender, MouseEventArgs e) // двигаем мышкой
         {
+            if (IsFilterRunning) return;
 
             lastMovePoint = e.Location; // обновляем текущую точку для предпросмотра
 
@@ -195,6 +208,8 @@ namespace MDI
 
         private void PictureBox_MouseUp(object sender, MouseEventArgs e) // опустили мышку
         {
+            if (IsFilterRunning) return;
+
             if (isDrawing && myPen != null)
             {
                 lastMovePoint = e.Location;
