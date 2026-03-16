@@ -1,4 +1,4 @@
-﻿using System.IO;
+using System.IO;
 using System.Reflection;
 using System.Collections.Generic;
 using System.Drawing;
@@ -508,14 +508,27 @@ namespace MDI
 
             if (activeChild != null && activeChild.pictureBox.Image != null)
             {
-                // Пока делаем синхронно (как в примере лабы), 
-                // асинхронность на 10 баллов добавим чуть позже.
-        
-                Bitmap bmp = (Bitmap)activeChild.pictureBox.Image;
-                plugin.Transform(bmp);
-        
-                activeChild.IsModified = true;
-                activeChild.pictureBox.Invalidate(); // Перерисовываем
+                try
+                {
+                    // Получаем битмап из PictureBox
+                    Bitmap bmp = (Bitmap)activeChild.pictureBox.Image;
+                    
+                    // Применяем трансформацию
+                    plugin.Transform(bmp);
+                    
+                    // Сообщаем, что файл изменен
+                    activeChild.IsModified = true;
+                    
+                    // Важно: переназначаем Image, чтобы PictureBox "увидел" изменения 
+                    // и вызываем Refresh для моментальной перерисовки
+                    activeChild.pictureBox.Image = bmp;
+                    activeChild.pictureBox.Refresh();
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Ошибка при выполнении фильтра '{plugin.Name}': {ex.Message}", 
+                        "Ошибка плагина", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
             }
             else
             {
