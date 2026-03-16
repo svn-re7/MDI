@@ -1,4 +1,4 @@
-﻿using Microsoft.VisualBasic.Devices;
+using Microsoft.VisualBasic.Devices;
 
 namespace MDI
 {
@@ -77,6 +77,9 @@ namespace MDI
             lblMousePos = new ToolStripStatusLabel();
             lblImageSize = new ToolStripStatusLabel();
             lblCurrentTool = new ToolStripStatusLabel();
+            progressBar = new ToolStripProgressBar();
+            lblProgress = new ToolStripStatusLabel();
+            btnCancel = new ToolStripButton();
             toolStripMenuItem5 = new ToolStripSeparator();
             menuStrip1.SuspendLayout();
             toolStrip1.SuspendLayout();
@@ -406,12 +409,34 @@ namespace MDI
             // statusStrip1
             // 
             statusStrip1.ImageScalingSize = new Size(28, 28);
-            statusStrip1.Items.AddRange(new ToolStripItem[] { lblMousePos, lblImageSize, lblCurrentTool });
+            statusStrip1.Items.AddRange(new ToolStripItem[] { lblMousePos, lblImageSize, lblCurrentTool, progressBar, lblProgress, btnCancel });
             statusStrip1.Location = new Point(0, 1017);
             statusStrip1.Name = "statusStrip1";
             statusStrip1.Size = new Size(1875, 39);
             statusStrip1.TabIndex = 5;
             statusStrip1.Text = "statusStrip1";
+            // 
+            // progressBar
+            // 
+            progressBar.Name = "progressBar";
+            progressBar.Size = new Size(100, 31);
+            progressBar.Visible = false;
+            // 
+            // lblProgress
+            // 
+            lblProgress.Name = "lblProgress";
+            lblProgress.Size = new Size(111, 30);
+            lblProgress.Text = "Прогресс:";
+            lblProgress.Visible = false;
+            // 
+            // btnCancel
+            // 
+            btnCancel.DisplayStyle = ToolStripItemDisplayStyle.Text;
+            btnCancel.Name = "btnCancel";
+            btnCancel.Size = new Size(100, 34);
+            btnCancel.Text = "Отмена";
+            btnCancel.Visible = false;
+            btnCancel.Click += BtnCancel_Click;
             // 
             // lblMousePos
             // 
@@ -510,5 +535,8 @@ namespace MDI
         private ToolStripMenuItem filtersToolStripMenuItem;
         private ToolStripMenuItem pluginSettingsMenuItem;
         private ToolStripSeparator toolStripMenuItem5;
+        private ToolStripProgressBar progressBar;
+        private ToolStripStatusLabel lblProgress;
+        private ToolStripButton btnCancel;
     }
 }

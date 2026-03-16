@@ -18,6 +18,7 @@ namespace MDI
             dgvPlugins = new DataGridView();
             btnSelectAll = new Button();
             btnSave = new Button();
+            chkAutoMode = new CheckBox();
             ((System.ComponentModel.ISupportInitialize)dgvPlugins).BeginInit();
             SuspendLayout();
             // 
@@ -31,7 +32,7 @@ namespace MDI
             dgvPlugins.Location = new Point(12, 12);
             dgvPlugins.Name = "dgvPlugins";
             dgvPlugins.RowHeadersWidth = 62;
-            dgvPlugins.Size = new Size(776, 350);
+            dgvPlugins.Size = new Size(776, 301);
             dgvPlugins.TabIndex = 0;
             // 
             // btnSelectAll
@@ -56,23 +57,37 @@ namespace MDI
             btnSave.UseVisualStyleBackColor = true;
             btnSave.Click += BtnSave_Click;
             // 
+            // chkAutoMode
+            // 
+            chkAutoMode.Anchor = AnchorStyles.Bottom | AnchorStyles.Left;
+            chkAutoMode.AutoSize = true;
+            chkAutoMode.Location = new Point(12, 330);
+            chkAutoMode.Name = "chkAutoMode";
+            chkAutoMode.Size = new Size(203, 34);
+            chkAutoMode.TabIndex = 3;
+            chkAutoMode.Text = "Автоматический режим";
+            chkAutoMode.UseVisualStyleBackColor = true;
+            // 
             // FiltersForm
             // 
             AutoScaleDimensions = new SizeF(12F, 30F);
             AutoScaleMode = AutoScaleMode.Font;
             ClientSize = new Size(800, 450);
+            Controls.Add(chkAutoMode);
             Controls.Add(btnSave);
             Controls.Add(btnSelectAll);
             Controls.Add(dgvPlugins);
             Name = "FiltersForm";
             StartPosition = FormStartPosition.CenterParent;
-            Text = "FiltersForm";
+            Text = "Управление плагинами";
             ((System.ComponentModel.ISupportInitialize)dgvPlugins).EndInit();
             ResumeLayout(false);
+            PerformLayout();
         }
 
         private DataGridView dgvPlugins;
         private Button btnSelectAll;
         private Button btnSave;
+        private CheckBox chkAutoMode;
     }
 }

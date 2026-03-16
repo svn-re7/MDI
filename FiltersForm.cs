@@ -8,11 +8,14 @@ namespace MDI
     public partial class FiltersForm : Form
     {
         private List<PluginItem> _plugins;
+        private AppConfig _config;
 
-        public FiltersForm(List<PluginItem> plugins)
+        public FiltersForm(List<PluginItem> plugins, AppConfig config)
         {
             InitializeComponent();
             _plugins = plugins;
+            _config = config;
+            chkAutoMode.Checked = _config.AutoMode;
             SetupGrid();
         }
 
@@ -69,6 +72,7 @@ namespace MDI
 
         private void BtnSave_Click(object sender, EventArgs e)
         {
+            _config.AutoMode = chkAutoMode.Checked;
             DialogResult = DialogResult.OK;
             Close();
         }

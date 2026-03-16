@@ -19,6 +19,14 @@ namespace MDI
             public bool IsEnabled { get; set; } = true;
         }
 
+        public class AppConfig
+        {
+            public bool AutoMode { get; set; } = false;
+            public List<PluginSettings> Plugins { get; set; } = new List<PluginSettings>();
+        }
+
+        private AppConfig currentConfig = new AppConfig();
+
         public class PluginItem
         {
             public IPlugin Plugin { get; set; }
@@ -458,17 +466,27 @@ namespace MDI
         }
 
 
+        private bool configWasMissing = false;
+
         private void LoadSettings()
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins_config.json");
-            if (File.Exists(path))
+            if (!File.Exists(path))
             {
-                try
-                {
-                    string json = File.ReadAllText(path);
-                    pluginSettings = JsonSerializer.Deserialize<List<PluginSettings>>(json) ?? new List<PluginSettings>();
-                }
-                catch { }
+                configWasMissing = true;
+                currentConfig = new AppConfig { AutoMode = false }; // requirement says create if missing
+                return;
+            }
+
+            try
+            {
+                string json = File.ReadAllText(path);
+                currentConfig = JsonSerializer.Deserialize<AppConfig>(json) ?? new AppConfig();
+            }
+            catch 
+            {
+                configWasMissing = true;
+                currentConfig = new AppConfig();
             }
         }
 
@@ -477,8 +495,8 @@ namespace MDI
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins_config.json");
             try
             {
-                var settingsToSave = allPlugins.Select(p => new PluginSettings { Name = p.Name, IsEnabled = p.IsEnabled }).ToList();
-                string json = JsonSerializer.Serialize(settingsToSave, new JsonSerializerOptions { WriteIndented = true });
+                currentConfig.Plugins = allPlugins.Select(p => new PluginSettings { Name = p.Name, IsEnabled = p.IsEnabled }).ToList();
+                string json = JsonSerializer.Serialize(currentConfig, new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(path, json);
             }
             catch (Exception ex)
@@ -528,9 +546,15 @@ namespace MDI
                                 item.Version = $"{versionAttr.Major}.{versionAttr.Minor}";
 
                             // Применяем настройки
-                            var saved = pluginSettings.FirstOrDefault(s => s.Name == plugin.Name);
-                            if (saved != null)
-                                item.IsEnabled = saved.IsEnabled;
+                            if (configWasMissing || currentConfig.AutoMode)
+                            {
+                                item.IsEnabled = true;
+                            }
+                            else
+                            {
+                                var saved = currentConfig.Plugins.FirstOrDefault(s => s.Name == plugin.Name);
+                                item.IsEnabled = saved != null && saved.IsEnabled;
+                            }
 
                             allPlugins.Add(item);
                         }
@@ -542,7 +566,12 @@ namespace MDI
                 }
             }
             
-            if (allPlugins.Count == 0)
+            if (configWasMissing)
+            {
+                SaveSettings();
+            }
+
+            if (allPlugins.Count == 0 && !configWasMissing) // Don't show if we just created it and it's empty
             {
                  MessageBox.Show($"Плагины не найдены. Путь поиска: {folder}\nФайлов DLL в папке: {files.Length}");
             }
@@ -566,7 +595,7 @@ namespace MDI
 
         private void ShowPluginSettings()
         {
-            using (var form = new FiltersForm(allPlugins))
+            using (var form = new FiltersForm(allPlugins, currentConfig))
             {
                 if (form.ShowDialog() == DialogResult.OK)
                 {
@@ -576,33 +605,68 @@ namespace MDI
             }
         }
 
-        private void OnPluginClick(IPlugin plugin)
+        private System.Threading.CancellationTokenSource? cts;
+
+        private void BtnCancel_Click(object? sender, EventArgs e)
         {
-            // Получаем активное дочернее окно
-            ChildForm activeChild = ActiveMdiChild as ChildForm;
+            cts?.Cancel();
+        }
+
+        private async void OnPluginClick(IPlugin plugin)
+        {
+            ChildForm? activeChild = ActiveMdiChild as ChildForm;
 
             if (activeChild != null && activeChild.pictureBox.Image != null)
             {
                 try
                 {
-                    // Получаем битмап из PictureBox
-                    Bitmap bmp = (Bitmap)activeChild.pictureBox.Image;
+                    // Подготовка UI
+                    progressBar.Visible = true;
+                    lblProgress.Visible = true;
+                    btnCancel.Visible = true;
+                    progressBar.Value = 0;
+                    filtersToolStripMenuItem.Enabled = false; // Блокируем меню
+
+                    cts = new System.Threading.CancellationTokenSource();
+                    var progress = new Progress<int>(v => 
+                    {
+                        progressBar.Value = v;
+                        lblProgress.Text = $"Прогресс: {v}%";
+                    });
+
+
+                    Bitmap bmp = new Bitmap(activeChild.pictureBox.Image);
                     
-                    // Применяем трансформацию
-                    plugin.Transform(bmp);
-                    
-                    // Сообщаем, что файл изменен
-                    activeChild.IsModified = true;
-                    
-                    // Важно: переназначаем Image, чтобы PictureBox "увидел" изменения 
-                    // и вызываем Refresh для моментальной перерисовки
-                    activeChild.pictureBox.Image = bmp;
-                    activeChild.pictureBox.Refresh();
+                    await Task.Run(() => 
+                    {
+                        plugin.Transform(bmp, progress, cts.Token);
+                    });
+
+                    if (cts.Token.IsCancellationRequested)
+                    {
+                        MessageBox.Show("Операция отменена.");
+                    }
+                    else
+                    {
+                        activeChild.pictureBox.Image?.Dispose();
+                        activeChild.pictureBox.Image = bmp;
+                        activeChild.IsModified = true;
+                        activeChild.pictureBox.Refresh();
+                    }
                 }
                 catch (Exception ex)
                 {
                     MessageBox.Show($"Ошибка при выполнении фильтра '{plugin.Name}': {ex.Message}", 
                         "Ошибка плагина", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                finally
+                {
+                    progressBar.Visible = false;
+                    lblProgress.Visible = false;
+                    btnCancel.Visible = false;
+                    filtersToolStripMenuItem.Enabled = true;
+                    cts?.Dispose();
+                    cts = null;
                 }
             }
             else
