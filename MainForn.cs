@@ -3,6 +3,7 @@ using System.Reflection;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Linq;
+using System.Text.Json;
 using PluginInterface;
 
 namespace MDI
@@ -10,6 +11,30 @@ namespace MDI
     public partial class MainForm : Form
     {
         private Dictionary<string, IPlugin> plugins = new Dictionary<string, IPlugin>();
+        private List<PluginSettings> pluginSettings = new List<PluginSettings>();
+        
+        public class PluginSettings
+        {
+            public string Name { get; set; } = "";
+            public bool IsEnabled { get; set; } = true;
+        }
+
+        public class PluginItem
+        {
+            public IPlugin Plugin { get; set; }
+            public string Name => Plugin.Name;
+            public string Author => Plugin.Author;
+            public string Version { get; set; } = "1.0";
+            public bool IsEnabled { get; set; } = true;
+
+            public PluginItem(IPlugin plugin)
+            {
+                Plugin = plugin;
+            }
+        }
+
+        private List<PluginItem> allPlugins = new List<PluginItem>();
+
         public static Color CurrentColor = Color.Black; // цвет пера
         public static int CurrentWidth = 3; // толщина пера
         public static bool IsFilled = false; // по умолчанию рисуем без заливки
@@ -30,8 +55,10 @@ namespace MDI
         public MainForm()
         {
             InitializeComponent();
+            LoadSettings();
             FindPlugins();      // 1. Нашли dll
             CreatePluginsMenu(); // 2. Создали кнопки
+            pluginSettingsMenuItem.Click += (s, e) => ShowPluginSettings();
             DoubleBuffered = true;
 
             // счетчик для выбора толщины кисти
@@ -431,8 +458,38 @@ namespace MDI
         }
 
 
+        private void LoadSettings()
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins_config.json");
+            if (File.Exists(path))
+            {
+                try
+                {
+                    string json = File.ReadAllText(path);
+                    pluginSettings = JsonSerializer.Deserialize<List<PluginSettings>>(json) ?? new List<PluginSettings>();
+                }
+                catch { }
+            }
+        }
+
+        private void SaveSettings()
+        {
+            string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins_config.json");
+            try
+            {
+                var settingsToSave = allPlugins.Select(p => new PluginSettings { Name = p.Name, IsEnabled = p.IsEnabled }).ToList();
+                string json = JsonSerializer.Serialize(settingsToSave, new JsonSerializerOptions { WriteIndented = true });
+                File.WriteAllText(path, json);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Ошибка сохранения настроек: " + ex.Message);
+            }
+        }
+
         void FindPlugins()
         {
+            allPlugins.Clear();
             string folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins");
             if (!Directory.Exists(folder))
                 Directory.CreateDirectory(folder);
@@ -456,11 +513,6 @@ namespace MDI
                     catch (ReflectionTypeLoadException ex)
                     {
                         types = ex.Types.Where(t => t != null).ToArray();
-                        foreach (var loaderEx in ex.LoaderExceptions)
-                        {
-                            if (loaderEx != null)
-                                MessageBox.Show($"Ошибка загрузки типов в {file}: {loaderEx.Message}");
-                        }
                     }
 
                     foreach (Type type in types)
@@ -468,7 +520,19 @@ namespace MDI
                         if (typeof(IPlugin).IsAssignableFrom(type) && !type.IsInterface)
                         {
                             IPlugin plugin = (IPlugin)Activator.CreateInstance(type);
-                            plugins.Add(plugin.Name, plugin);
+                            var item = new PluginItem(plugin);
+                            
+                            // Извлекаем версию
+                            var versionAttr = type.GetCustomAttribute<VersionAttribute>();
+                            if (versionAttr != null)
+                                item.Version = $"{versionAttr.Major}.{versionAttr.Minor}";
+
+                            // Применяем настройки
+                            var saved = pluginSettings.FirstOrDefault(s => s.Name == plugin.Name);
+                            if (saved != null)
+                                item.IsEnabled = saved.IsEnabled;
+
+                            allPlugins.Add(item);
                         }
                     }
                 }
@@ -478,28 +542,39 @@ namespace MDI
                 }
             }
             
-            if (plugins.Count == 0)
+            if (allPlugins.Count == 0)
             {
                  MessageBox.Show($"Плагины не найдены. Путь поиска: {folder}\nФайлов DLL в папке: {files.Length}");
             }
         }
 
         private void CreatePluginsMenu()
-{
-    // Очищаем старые пункты, если они были (кроме настроек и разделителя)
-    // Предположим, что настройки — это 0-й элемент, а разделитель — 1-й.
-    while (filtersToolStripMenuItem.DropDownItems.Count > 2)
-    {
-        filtersToolStripMenuItem.DropDownItems.RemoveAt(2);
-    }
+        {
+            // Очищаем старые пункты, кроме настроек и разделителя
+            while (filtersToolStripMenuItem.DropDownItems.Count > 2)
+            {
+                filtersToolStripMenuItem.DropDownItems.RemoveAt(2);
+            }
 
-    foreach (var plugin in plugins.Values)
-    {
-        ToolStripMenuItem item = new ToolStripMenuItem(plugin.Name);
-        item.Click += (sender, e) => OnPluginClick(plugin); // Подписываемся на клик
-        filtersToolStripMenuItem.DropDownItems.Add(item);
-    }
-}
+            foreach (var item in allPlugins.Where(p => p.IsEnabled))
+            {
+                ToolStripMenuItem menuLine = new ToolStripMenuItem(item.Name);
+                menuLine.Click += (sender, e) => OnPluginClick(item.Plugin);
+                filtersToolStripMenuItem.DropDownItems.Add(menuLine);
+            }
+        }
+
+        private void ShowPluginSettings()
+        {
+            using (var form = new FiltersForm(allPlugins))
+            {
+                if (form.ShowDialog() == DialogResult.OK)
+                {
+                    SaveSettings();
+                    CreatePluginsMenu();
+                }
+            }
+        }
 
         private void OnPluginClick(IPlugin plugin)
         {
