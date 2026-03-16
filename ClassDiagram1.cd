@@ -1,0 +1,110 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="PluginInterface.VersionAttribute" Collapsed="true">
+    <Position X="0.5" Y="2" Width="1.5" />
+    <TypeIdentifier />
+  </Class>
+  <Class Name="MDI.MainForm">
+    <Position X="10.75" Y="2" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Class Name="MDI.MainForm.PluginSettings">
+        <TypeIdentifier>
+          <NewMemberFileName>MainForn.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="MDI.MainForm.AppConfig">
+        <TypeIdentifier>
+          <NewMemberFileName>MainForn.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Class Name="MDI.MainForm.PluginItem">
+        <TypeIdentifier>
+          <NewMemberFileName>MainForn.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Class>
+      <Enum Name="MDI.MainForm.DrawingTool" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>MainForn.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Enum>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>DUYSIEEMKSkBAZEyjkmgmBGCJQgyJNgGgFrDBBrQICE=</HashCode>
+      <FileName>MainForn.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MDI.AboutForm">
+    <Position X="6.5" Y="2.25" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACCAABAAAACAAAACAAAABAAAAAAAAAAAAAA=</HashCode>
+      <FileName>AboutForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MDI.CanvasSizeForm">
+    <Position X="9" Y="2" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAECAAAAEAAACAAAACAAAIAGAAAAAAAAAAAAA=</HashCode>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MDI.ChildForm">
+    <Position X="2.25" Y="2" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+      <Compartment Name="Methods" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAUABAAAACABAAABABSAAAAKxCIBKIABIAAAYBgACAA=</HashCode>
+      <FileName>ChildForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MDI.CodeEditorForm">
+    <Position X="2.75" Y="5.25" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAgCAAAAEAAACAAEACAAAAAAIABEAQAAAAgAA=</HashCode>
+      <FileName>CodeEditorForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MDI.FiltersForm">
+    <Position X="0.5" Y="5.25" Width="1.5" />
+    <Compartments>
+      <Compartment Name="Fields" Collapsed="true" />
+    </Compartments>
+    <TypeIdentifier>
+      <HashCode>AAAYAAAAACBAAgAAAACAEAACAAAAAAAAACAAAAJAAAE=</HashCode>
+      <FileName>FiltersForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MDI.PluginCompiler">
+    <Position X="4.5" Y="1.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEA=</HashCode>
+      <FileName>PluginCompiler.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MDI.TextForm">
+    <Position X="4.5" Y="5.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAQEAAACAAAACAQAAAEAAAAAAAAAAAAA=</HashCode>
+      <FileName>TextForm.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Interface Name="PluginInterface.IPlugin">
+    <Position X="0.5" Y="3.25" Width="1.5" />
+    <TypeIdentifier />
+  </Interface>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

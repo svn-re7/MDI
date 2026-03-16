@@ -64,8 +64,8 @@ namespace MDI
         {
             InitializeComponent();
             LoadSettings();
-            FindPlugins();      // 1. Нашли dll
-            CreatePluginsMenu(); // 2. Создали кнопки
+            FindPlugins();      // Нашли dll
+            CreatePluginsMenu(); // Создали кнопки
             DoubleBuffered = true;
 
             // счетчик для выбора толщины кисти
@@ -570,7 +570,7 @@ namespace MDI
                 SaveSettings();
             }
 
-            if (allPlugins.Count == 0 && !configWasMissing) // Don't show if we just created it and it's empty
+            if (allPlugins.Count == 0 && !configWasMissing)
             {
                  MessageBox.Show($"Плагины не найдены. Путь поиска: {folder}\nФайлов DLL в папке: {files.Length}");
             }
