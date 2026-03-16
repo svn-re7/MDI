@@ -66,7 +66,6 @@ namespace MDI
             LoadSettings();
             FindPlugins();      // 1. Нашли dll
             CreatePluginsMenu(); // 2. Создали кнопки
-            pluginSettingsMenuItem.Click += (s, e) => ShowPluginSettings();
             DoubleBuffered = true;
 
             // счетчик для выбора толщины кисти
@@ -468,13 +467,13 @@ namespace MDI
 
         private bool configWasMissing = false;
 
-        private void LoadSettings()
+        private void LoadSettings() // загрузка конфига
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins_config.json");
             if (!File.Exists(path))
             {
                 configWasMissing = true;
-                currentConfig = new AppConfig { AutoMode = false }; // requirement says create if missing
+                currentConfig = new AppConfig { AutoMode = false };
                 return;
             }
 
@@ -490,7 +489,7 @@ namespace MDI
             }
         }
 
-        private void SaveSettings()
+        private void SaveSettings() // сохранение конфига
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "plugins_config.json");
             try
@@ -505,7 +504,7 @@ namespace MDI
             }
         }
 
-        void FindPlugins()
+        void FindPlugins() // поиск плагинов
         {
             allPlugins.Clear();
             string folder = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Plugins");
@@ -579,33 +578,50 @@ namespace MDI
 
         private void CreatePluginsMenu()
         {
-            // Очищаем старые пункты, кроме настроек и разделителя
-            while (filtersToolStripMenuItem.DropDownItems.Count > 2)
+            // Очищаем старые пункты, кроме настроек, редактора и разделителя
+            while (filtersToolStripMenuItem.DropDownItems.Count > 3)
             {
-                filtersToolStripMenuItem.DropDownItems.RemoveAt(2);
+                filtersToolStripMenuItem.DropDownItems.RemoveAt(3);
             }
 
             foreach (var item in allPlugins.Where(p => p.IsEnabled))
             {
                 ToolStripMenuItem menuLine = new ToolStripMenuItem(item.Name);
-                menuLine.Click += (sender, e) => OnPluginClick(item.Plugin);
+                menuLine.Click += async (sender, e) => await OnPluginClick(item.Plugin);
                 filtersToolStripMenuItem.DropDownItems.Add(menuLine);
             }
         }
 
-        private void ShowPluginSettings()
+
+        private void PluginSettingsMenuItem_Click(object sender, EventArgs e)
         {
-            using (var form = new FiltersForm(allPlugins, currentConfig))
+            FiltersForm form = new FiltersForm(allPlugins, currentConfig);
+            if (form.ShowDialog() == DialogResult.OK)
             {
-                if (form.ShowDialog() == DialogResult.OK)
-                {
-                    SaveSettings();
-                    CreatePluginsMenu();
-                }
+                SaveSettings();
+                CreatePluginsMenu();
             }
         }
 
-        private async void OnPluginClick(IPlugin plugin)
+        // вызов редактора кода и применение фильтра
+        private async void menuCustomFilter_Click(object sender, EventArgs e)
+        {
+            CodeEditorForm editor = new CodeEditorForm();
+            if (editor.ShowDialog() == DialogResult.OK && editor.CompiledPlugin != null)
+            {
+                // добавление фильтра в меню сессии
+                if (!allPlugins.Any(p => p.Plugin.GetType() == editor.CompiledPlugin.GetType()))
+                {
+                    allPlugins.Add(new PluginItem(editor.CompiledPlugin));
+                    CreatePluginsMenu(); // обновление кнопок в меню
+                }
+                
+                // выполнение плагина
+                await OnPluginClick(editor.CompiledPlugin);
+            }
+        }
+
+        private async Task OnPluginClick(IPlugin plugin)
         {
             ChildForm? activeChild = ActiveMdiChild as ChildForm;
 

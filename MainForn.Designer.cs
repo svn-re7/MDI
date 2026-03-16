@@ -51,6 +51,7 @@ namespace MDI
             menuAbout = new ToolStripMenuItem();
             filtersToolStripMenuItem = new ToolStripMenuItem();
             pluginSettingsMenuItem = new ToolStripMenuItem();
+            menuCustomFilter = new ToolStripMenuItem();
             btnNew = new ToolStripButton();
             btnOpen = new ToolStripButton();
             btnSave = new ToolStripButton();
@@ -218,7 +219,7 @@ namespace MDI
             // 
             // filtersToolStripMenuItem
             // 
-            filtersToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { pluginSettingsMenuItem, toolStripMenuItem5 });
+            filtersToolStripMenuItem.DropDownItems.AddRange(new ToolStripItem[] { pluginSettingsMenuItem, menuCustomFilter, toolStripMenuItem5 });
             filtersToolStripMenuItem.Name = "filtersToolStripMenuItem";
             filtersToolStripMenuItem.Size = new Size(116, 34);
             filtersToolStripMenuItem.Text = "Фильтры";
@@ -228,6 +229,14 @@ namespace MDI
             pluginSettingsMenuItem.Name = "pluginSettingsMenuItem";
             pluginSettingsMenuItem.Size = new Size(329, 40);
             pluginSettingsMenuItem.Text = "Настройки плагинов";
+            pluginSettingsMenuItem.Click += PluginSettingsMenuItem_Click;
+            // 
+            // menuCustomFilter
+            // 
+            menuCustomFilter.Name = "menuCustomFilter";
+            menuCustomFilter.Size = new Size(329, 40);
+            menuCustomFilter.Text = "Пользовательский фильтр...";
+            menuCustomFilter.Click += menuCustomFilter_Click;
             // 
             // btnNew
             // 
@@ -509,6 +518,7 @@ namespace MDI
         private ToolStripButton btnFont;
         private ToolStripMenuItem filtersToolStripMenuItem;
         private ToolStripMenuItem pluginSettingsMenuItem;
+        private ToolStripMenuItem menuCustomFilter;
         private ToolStripSeparator toolStripMenuItem5;
     }
 }
